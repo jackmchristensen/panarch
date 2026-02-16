@@ -16,10 +16,10 @@ qt_add_executable(Panarch
   src/backend/AssetIndex.cpp
 )
 
-qt_add_resources(Panarch "qml"
+qt_add_resources(Panarch "ui"
   PREFIX "/"
   FILES
-    src/qml/main.qml
+    src/ui/main.qml
 )
 
 target_include_directories(Panarch PRIVATE src)
