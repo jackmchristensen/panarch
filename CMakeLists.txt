@@ -14,6 +14,8 @@ qt_standard_project_setup()
 qt_add_executable(Panarch
   src/main.cpp
   src/backend/AssetIndex.cpp
+  src/backend/AssetListModel.cpp
+  src/backend/Backend.cpp
 )
 
 qt_add_resources(Panarch "ui"
