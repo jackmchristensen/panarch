@@ -14,10 +14,16 @@ configure mode=default_mode:
     -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
   ln -sf build-{{ mode }}/compile_commands.json compile_commands.json
 
-build mode=default_mode: (configure mode)
+build mode=default_mode:
   cmake --build build-{{ mode }} --parallel
 
-run mode=default_mode: (build mode)
+run mode=default_mode:
+  ./build-{{ mode }}/bin/Panarch
+
+build-configure mode=default_mode: (configure mode)
+  cmake --build build-{{ mode }} --parallel
+
+run-build mode=default_mode: (build mode)
   ./build-{{ mode }}/bin/Panarch
 
 clean mode=default_mode:
