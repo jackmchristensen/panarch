@@ -25,8 +25,8 @@ QVector<AssetRecord> AssetIndex::scan(const QString& rootDir) {
 
     // Sidecar files for thumbnail. Would like to replace with an auto thumbnail renderer in the future
     // asset.usd.png or asset.png next to asset.usd
-    const QString thumb0 = fi.absoluteFilePath() + ".png";
-    const QString thumb1 = fi.absoluteFilePath() + "/" + fi.completeBaseName() + ".png";
+    const QString thumb0 = fi.absolutePath() + ".png";
+    const QString thumb1 = fi.absolutePath() + "/" + fi.completeBaseName() + ".png";
 
     if (QFileInfo::exists(thumb0)) rec.thumbnail = thumb0;
     else if (QFileInfo::exists(thumb1)) rec.thumbnail = thumb1;
