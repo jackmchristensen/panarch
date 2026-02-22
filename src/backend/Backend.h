@@ -17,8 +17,14 @@ public:
   QString selectedPath() const { return m_selectedPath; }
   QString selectedName() const { return m_selectedName; }
 
+  Q_INVOKABLE void initialize();
+  Q_INVOKABLE void addLibraryRoot(const QString& rootDir);
+  Q_INVOKABLE void rescan();
   Q_INVOKABLE void loadLibrary(const QString& rootDir);
   Q_INVOKABLE void selectIndex(int index);
+
+  void saveLibraryRoots(const QStringList& roots);
+  QStringList loadLibraryRoots();
 
 signals:
   void selectedChanged();

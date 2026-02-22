@@ -21,7 +21,9 @@ qt_add_executable(Panarch
 qt_add_resources(Panarch "ui"
   PREFIX "/"
   FILES
-    src/ui/main.qml
+    src/ui/Theme.qml
+    src/ui/PButton.qml
+    src/ui/Main.qml
 )
 
 target_include_directories(Panarch PRIVATE src)
