@@ -33,5 +33,9 @@ Button {
   onPressed: background.scale = 0.98
   onReleased: background.scale = 1.0
 
+  HoverHandler {
+    cursorShape: Qt.PointingHandCursor
+  }
+
   padding: 10
 }
