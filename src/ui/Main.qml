@@ -53,7 +53,7 @@ ApplicationWindow {
         Rectangle {
           anchors.centerIn: parent
           width: 2
-          height: parent.height
+          height: parent.height - (Theme.radius*2)
           color: Theme.borderSubtle
           radius: Theme.radiusSmall
         }
@@ -67,7 +67,7 @@ ApplicationWindow {
 
         background: Rectangle {
           radius: Theme.radius
-          color: Theme.bg
+          color: Theme.panel
           border.color: Theme.border
           border.width: Theme.borderWidth
         }
@@ -140,7 +140,7 @@ ApplicationWindow {
 
         background: Rectangle {
           radius: Theme.radius
-          color: Theme.bg
+          color: Theme.panel
           border.color: Theme.border
           border.width: Theme.borderWidth
         }
@@ -160,18 +160,63 @@ ApplicationWindow {
           Column {
             spacing: 8
             visible: backend.selectedPath !== ""
+            width: parent.width
 
-            Text {
-              text: "Name: " + backend.selectedName
-              color: Theme.text
+            // Thumbnail preview
+            Rectangle {
+              width: parent.width
+              height: width
+              color: Theme.card
+              border.color: Theme.border
+              radius: Theme.radius
+
+              Image {
+                anchors.fill: parent
+                anchors.margins: 8
+                source: backend.selectedThumbnail ? "file://" + backend.selectedThumbnail : ""
+                fillMode: Image.PreserveAspectFit
+              }
+
+              Text {
+                anchors.centerIn: parent
+                text: "📦"
+                font.pixelSize: 64
+                visible: !backend.selectedThumbnail
+              }
             }
 
             Text {
-              text: "Path: " + backend.selectedPath
+              text: backend.selectedName
+              color: Theme.text
+              font.pixelSize: Theme.h2
+              font.bold: true
+              width: parent.width
+              wrapMode: Text.WrapAnywhere
+            }
+
+            Text {
+              text: backend.selectedType.toUpperCase()
+              color: Theme.textAccent
+              font.pixelSize: Theme.bodySmall
+            }
+
+            Text {
+              text: backend.selectedPath
               color: Theme.textSecondary
               font.pixelSize: Theme.bodySmall 
               wrapMode: Text.WrapAnywhere
+              width: parent.width
             }
+          }
+
+          // Empty state
+          // Would like to replace this frame with a drawer in the future
+          // which would allow for the panel to not be rendered when empty
+          Text {
+            text: "No asset selected"
+            color: Theme.textDisabled
+            font.pixelSize: Theme.body
+            visible: backend.selectedPath === ""
           }
 
           Item { Layout.fillHeight: true }

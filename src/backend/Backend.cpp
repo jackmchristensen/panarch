@@ -43,6 +43,8 @@ void Backend::selectIndex(int index) {
 
   m_selectedPath = rec->path;
   m_selectedName = rec->name;
+  m_selectedType = rec->type;
+  m_selectedThumbnail = rec->thumbnail;
   emit selectedChanged();
 }
 

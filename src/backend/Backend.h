@@ -8,6 +8,8 @@ class Backend : public QObject {
   Q_PROPERTY(AssetListModel* assets READ assets CONSTANT)
   Q_PROPERTY(QString selectedPath READ selectedPath NOTIFY selectedChanged)
   Q_PROPERTY(QString selectedName READ selectedName NOTIFY selectedChanged)
+  Q_PROPERTY(QString selectedType READ selectedType NOTIFY selectedChanged)
+  Q_PROPERTY(QString selectedThumbnail READ selectedThumbnail NOTIFY selectedChanged)
 
 public:
   explicit Backend(QObject* parent = nullptr);
@@ -16,6 +18,8 @@ public:
 
   QString selectedPath() const { return m_selectedPath; }
   QString selectedName() const { return m_selectedName; }
+  QString selectedType() const { return m_selectedType; }
+  QString selectedThumbnail() const { return m_selectedThumbnail; }
 
   Q_INVOKABLE void initialize();
   Q_INVOKABLE void addLibraryRoot(const QString& rootDir);
@@ -33,4 +37,6 @@ private:
   AssetListModel m_assets;
   QString m_selectedPath;
   QString m_selectedName;
+  QString m_selectedType;
+  QString m_selectedThumbnail;
 };
