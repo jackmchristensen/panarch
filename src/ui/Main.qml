@@ -10,23 +10,13 @@ ApplicationWindow {
   height: 720
   title: "Panarch USD Asset Manager"
 
-  id: root
-  property int radius: 6
-  property int borderWidth: 1
-  property color borderColor: "#979797"
-
-  property int textSize: 16
-  property color textColor: "#E6E8EF"
-
-  property color bg: "#282C34"
-
   background: Rectangle {
     anchors.fill: parent
-    color: root.bg
+    color: Theme.bg
   }
 
   header: ToolBar {
-    background: Rectangle { color: background.color }
+    background: Rectangle { color: Theme.bg }
 
     RowLayout {
       // anchors.fill: parent
@@ -44,9 +34,8 @@ ApplicationWindow {
 
       PButton {
         text: "File"
-        font.pixelSize: root.textSize
+        font.pixelSize: Theme.h2
 
-        Text { color: root.textColor }
         Layout.leftMargin: 12
         Layout.topMargin: 6
         Layout.bottomMargin: 6
@@ -54,9 +43,7 @@ ApplicationWindow {
 
       PButton {
         text: "Edit"
-        font.pixelSize: root.textSize
-
-        Text { color: root.textColor }
+        font.pixelSize: Theme.h2
         // Layout.leftMargin: 12
         // Layout.topMargin: 6
         // Layout.bottomMargin: 6
@@ -99,28 +86,28 @@ ApplicationWindow {
       Rectangle {
         width: 64
         height: 64
-        radius: root.radius
-        color: root.bg
-        border.color: "#979797"
-        border.width: root.borderWidth
+        radius: Theme.radius
+        color: Theme.bg
+        border.color: Theme.border
+        border.width: Theme.borderWidth
       }
 
       Rectangle {
         width: 64
         height: 64
-        radius: root.radius
-        color: root.bg
-        border.color: "#979797"
-        border.width: root.borderWidth
+        radius: Theme.radius
+        color: Theme.bg
+        border.color: Theme.border
+        border.width: Theme.borderWidth
       }
  
       Rectangle {
         width: 64
         height: 64
-        radius: root.radius
-        color: root.bg
-        border.color: "#979797"
-        border.width: root.borderWidth
+        radius: Theme.radius
+        color: Theme.bg
+        border.color: Theme.border
+        border.width: Theme.borderWidth
       }
     }
 
@@ -130,13 +117,13 @@ ApplicationWindow {
 
       handle: Rectangle {
         implicitWidth: 6
-        color: root.bg
+        color: Theme.bg
         Rectangle {
           anchors.centerIn: parent
           width: 2
           height: parent.height
-          color: "#535353"
-          radius: 1
+          color: Theme.borderSubtle
+          radius: Theme.radiusSmall
         }
       }
 
@@ -147,10 +134,10 @@ ApplicationWindow {
         Layout.fillHeight: true
 
         background: Rectangle {
-          radius: root.radius
-          color: root.bg
-          border.color: root.borderColor
-          border.width: root.borderWidth
+          radius: Theme.radius
+          color: Theme.bg
+          border.color: Theme.border
+          border.width: Theme.borderWidth
         }
 
         Label {
@@ -178,9 +165,9 @@ ApplicationWindow {
               Rectangle {
                 width: 120
                 height: 120
-                color: "#1B2030"
-                border.color: "#2B3247"
-                radius: 6
+                color: Theme.card
+                border.color: Theme.border
+                radius: Theme.radius
 
                 Image {
                   anchors.fill: parent
@@ -202,8 +189,8 @@ ApplicationWindow {
               Text {
                 width: 120
                 text: model.name
-                color: "#E6E8EF"
-                font.pixelSize: 12
+                color: Theme.text
+                font.pixelSize: Theme.body
                 elide: Text.ElideMiddle
                 horizontalAlignment: Text.AlignHCenter
               }
@@ -224,10 +211,10 @@ ApplicationWindow {
         Layout.fillHeight: true
 
         background: Rectangle {
-          radius: root.radius
-          color: root.bg
-          border.color: root.borderColor
-          border.width: root.borderWidth
+          radius: Theme.radius
+          color: Theme.bg
+          border.color: Theme.border
+          border.width: Theme.borderWidth
         }
  
         Label {
@@ -242,9 +229,9 @@ ApplicationWindow {
 
           Label {
             text: "Selected Asset"
-            font.pixelSize: 16
+            font.pixelSize: Theme.h2
             font.bold: true
-            color: root.textColor
+            color: Theme.text
           }
 
           Column {
@@ -253,13 +240,13 @@ ApplicationWindow {
 
             Text {
               text: "Name: " + backend.selectedName
-              color: root.textColor
+              color: Theme.text
             }
 
             Text {
               text: "Path: " + backend.selectedPath
-              color: "#A9AFC0"
-              font.pixelSize: 11
+              color: Theme.textSecondary
+              font.pixelSize: Theme.bodySmall 
               wrapMode: Text.WrapAnywhere
             }
           }
