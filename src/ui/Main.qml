@@ -90,12 +90,18 @@ ApplicationWindow {
 
               // Thumbnail
               Rectangle {
+                id: thumb
                 width: 120
                 height: 120
-                color: model.path === backend.selectedPath ? Theme.selection : Theme.card
+                color: model.path === backend.selectedPath ? Theme.selection
+                : mouseFlag.containsMouse ? Theme.hover
+                : Theme.card
                 border.color: model.path === backend.selectedPath ? Theme.primary : Theme.border
                 border.width: model.path === backend.selectedPath ? Theme.borderWidthThick : Theme.borderWidth
                 radius: Theme.radius
+
+                Behavior on color { ColorAnimation { duration: 120 } }
+                Behavior on scale { NumberAnimation { duration: 120 } }
 
                 Image {
                   anchors.fill: parent
@@ -125,8 +131,13 @@ ApplicationWindow {
             }
 
             MouseArea {
+              id: mouseFlag
               anchors.fill: parent
               onClicked: backend.selectIndex(index)
+              hoverEnabled: true
+
+              onPressed: thumb.scale = 0.99
+              onReleased: thumb.scale = 1.00
             }
           }
         }
