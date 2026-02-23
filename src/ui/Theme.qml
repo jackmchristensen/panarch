@@ -17,6 +17,7 @@ QtObject {
   readonly property int radius: 6
   readonly property int radiusLarge: 8
   readonly property int borderWidth: 1
+  readonly property int borderWidthThick: 2
 
   // Typography
   readonly property int h1: 20

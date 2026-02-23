@@ -19,37 +19,11 @@ ApplicationWindow {
     background: Rectangle { color: Theme.bg }
 
     RowLayout {
-      // anchors.fill: parent
       spacing: 10
 
-      // Label {
-      //   text: "Panarch USD Asset Manager"
-      //   font.pixelSize: root.textSize
-      //   color: root.textColor
-      //
-      //   Layout.leftMargin: 12
-      //   Layout.topMargin: 6
-      //   Layout.bottomMargin: 6
-      // }
-
       PButton {
-        text: "File"
-        font.pixelSize: Theme.h2
-
-        Layout.leftMargin: 12
-        Layout.topMargin: 6
-        Layout.bottomMargin: 6
-      }
-
-      PButton {
-        text: "Edit"
-        font.pixelSize: Theme.h2
-        // Layout.leftMargin: 12
-        // Layout.topMargin: 6
-        // Layout.bottomMargin: 6
-      }
-
-      PButton {
+        Layout.leftMargin: Theme.s3
+        Layout.topMargin: Theme.s2
         text: "Add Library..."
         onClicked: folderDialog.open()
       }
@@ -64,52 +38,10 @@ ApplicationWindow {
     }
   }
 
-  // menuBar: MenuBar {
-  //   background: Rectangle { color: root.bg }
-  //
-  //   Menu {
-  //     title: qsTr("&File")
-  //     Action { text: qsTr("&Import...") }
-  //     MenuSeparator { }
-  //     Action { text: qsTr("&Close...") }
-  //   }
-  // }
-
   RowLayout {
     anchors.fill: parent
     anchors.margins: 12
     spacing: 12
-
-    ColumnLayout {
-      spacing: 12
-
-      Rectangle {
-        width: 64
-        height: 64
-        radius: Theme.radius
-        color: Theme.bg
-        border.color: Theme.border
-        border.width: Theme.borderWidth
-      }
-
-      Rectangle {
-        width: 64
-        height: 64
-        radius: Theme.radius
-        color: Theme.bg
-        border.color: Theme.border
-        border.width: Theme.borderWidth
-      }
- 
-      Rectangle {
-        width: 64
-        height: 64
-        radius: Theme.radius
-        color: Theme.bg
-        border.color: Theme.border
-        border.width: Theme.borderWidth
-      }
-    }
 
     SplitView {
       anchors.fill: parent
@@ -140,11 +72,6 @@ ApplicationWindow {
           border.width: Theme.borderWidth
         }
 
-        Label {
-          text: "Asset Grid" 
-          color: "#E6E8EF"
-        }
-
         GridView {
           id: assetGrid
           anchors.fill: parent
@@ -165,8 +92,9 @@ ApplicationWindow {
               Rectangle {
                 width: 120
                 height: 120
-                color: Theme.card
-                border.color: Theme.border
+                color: model.path === backend.selectedPath ? Theme.selection : Theme.card
+                border.color: model.path === backend.selectedPath ? Theme.primary : Theme.border
+                border.width: model.path === backend.selectedPath ? Theme.borderWidthThick : Theme.borderWidth
                 radius: Theme.radius
 
                 Image {
@@ -217,11 +145,6 @@ ApplicationWindow {
           border.width: Theme.borderWidth
         }
  
-        Label {
-          text: "Inspector" 
-          color: "#E6E8EF"
-        }
-
         ColumnLayout {
           anchors.fill: parent
           anchors.margins: 12
