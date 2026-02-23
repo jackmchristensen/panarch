@@ -27,6 +27,7 @@ void Backend::addLibraryRoot(const QString& rootDir) {
   if (!roots.contains(rootDir)) {
     roots.append(rootDir);
     saveLibraryRoots(roots);
+    emit libraryRootsChanged();
   }
   rescan();
 }
@@ -56,4 +57,12 @@ void Backend::saveLibraryRoots(const QStringList& roots) {
 QStringList Backend::loadLibraryRoots() {
   QSettings settings;
   return settings.value("library/roots").toStringList();
+}
+
+void Backend::removeLibraryRoot(const QString& path) {
+  QStringList roots = loadLibraryRoots();
+  roots.removeAll(path);
+  saveLibraryRoots(roots);
+  emit libraryRootsChanged();
+  rescan();
 }
