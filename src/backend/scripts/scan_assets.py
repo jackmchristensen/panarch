@@ -6,7 +6,7 @@ by other USD files in the tree). C++ uses this list to exclude them from
 results.
 """
 
-import os, sys
+import os, sys, json
 from collections import defaultdict
 
 try:
@@ -99,13 +99,15 @@ def main():
     entry_candidates = [f for f in usd_files if inbound[f] == 0]
     internal_layers  = [f for f in usd_files if inbound[f] > 0]
 
-    print("\nLikely entry layers (inbound == 0):")
-    for f in sorted(entry_candidates):
-        print(f"  {f}")
+    print(json.dumps(sorted(entry_candidates)))
 
-    print("\nLikely internal layers (inbound > 0):")
-    for f in sorted(internal_layers, key=lambda x: inbound[x], reverse=True):
-        print(f"  ({inbound[f]}) {f}")
+    # print("\nLikely entry layers (inboud == 0):")
+    # for f in sorted(entry_candidates):
+    #     print(f"  {f}")
+    #
+    # print("\nLikely internal layers (inbound > 0):")
+    # for f in sorted(internal_layers, key=lambda x: inbound[x], reverse=True):
+    #     print(f"  ({inbound[f]}) {f}")
 
 
 if __name__ == "__main__":
