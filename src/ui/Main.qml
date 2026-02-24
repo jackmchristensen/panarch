@@ -74,10 +74,21 @@ ApplicationWindow {
         border.width: Theme.borderWidth
       }
 
+      // TextField {
+      //   anchors.horizontalCenter: parent.horizontalCenter
+      //   placeholderText: qsTr("Filter")
+      //
+      //   background: Rectangle {
+      //     width: parent.width
+      //     radius: Theme.radius
+      //     color: "#FFFFFF"
+      //   }
+      // }
+
       GridView {
         id: assetGrid
         anchors.fill: parent
-        anchors.margins: 12
+        anchors.margins: Theme.s3
         cellWidth: 140
         cellHeight: 180
         model: backend.assets
