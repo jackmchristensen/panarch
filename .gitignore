@@ -183,6 +183,7 @@ cmake-build-*/
 *.qmlproject.user*
 CMakeLists.txt.user
 .qmake.stash
+.qmlls.ini
 
 # Eclipse CDT
 .project
