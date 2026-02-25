@@ -1,6 +1,10 @@
 #include <backend/AssetIndex.h>
 #include <QDirIterator>
 #include <QFileInfo>
+#include <QProcess>
+#include <QJsonDocument>
+#include <QJsonArray>
+#include <QCoreApplication>
 
 static bool isUsdExt(const QString& ext) {
   const auto e = ext.toLower();
@@ -10,22 +14,41 @@ static bool isUsdExt(const QString& ext) {
 QVector<AssetRecord> AssetIndex::scan(const QString& rootDir) {
   QVector<AssetRecord> out;
 
-  QDirIterator it(rootDir, QDir::Files, QDirIterator::Subdirectories);
-  while (it.hasNext()) {
-    const QString path = it.next();
-    QFileInfo fi(path);
-    const QString ext = fi.suffix();
+  QString exeDir = QCoreApplication::applicationDirPath();
+  QString scriptPath = QDir(exeDir).filePath("scripts/scan_assets.py");
 
-    if (!isUsdExt(ext)) continue;
+  QProcess proc;
+  QString program = "python";
+  QStringList args;
+  args << scriptPath << rootDir;
+
+  QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
+  env.insert("LD_PRELOAD", "/usr/lib/libjemalloc.so.2");
+  proc.setProcessEnvironment(env);
+
+  proc.start(program, args);
+  proc.waitForFinished();
+ 
+  QByteArray stdoutData = proc.readAllStandardOutput();
+  QJsonDocument doc = QJsonDocument::fromJson(stdoutData);
+
+  if(!doc.isArray())
+    return out;
+
+  QJsonArray arr = doc.array();
+
+  for(const QJsonValue& val : arr) {
+    QString path = val.toString();
+    QFileInfo fi(path);
 
     AssetRecord rec;
     rec.path = fi.absoluteFilePath();
     rec.name = fi.completeBaseName();
-    rec.type = ext.toLower();
+    rec.type = fi.suffix().toLower();
 
     // Sidecar files for thumbnail. Would like to replace with an auto thumbnail renderer in the future
     // asset.usd.png or asset.png next to asset.usd
-    const QString thumb0 = fi.absolutePath() + ".png";
+    const QString thumb0 = fi.absoluteFilePath() + ".png";
     const QString thumb1 = fi.absolutePath() + "/" + fi.completeBaseName() + ".png";
 
     if (QFileInfo::exists(thumb0)) rec.thumbnail = thumb0;
