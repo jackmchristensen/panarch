@@ -42,8 +42,8 @@ QVector<AssetRecord> AssetIndex::scan(const QString& rootDir) {
     QFileInfo fi(path);
 
     AssetRecord rec;
-    rec.path = fi.absoluteFilePath();
-    rec.name = fi.completeBaseName();
+    rec.entryPath = fi.absoluteFilePath();
+    rec.displayName = fi.completeBaseName();
     rec.type = fi.suffix().toLower();
 
     // Sidecar files for thumbnail. Would like to replace with an auto thumbnail renderer in the future
@@ -51,8 +51,8 @@ QVector<AssetRecord> AssetIndex::scan(const QString& rootDir) {
     const QString thumb0 = fi.absoluteFilePath() + ".png";
     const QString thumb1 = fi.absolutePath() + "/" + fi.completeBaseName() + ".png";
 
-    if (QFileInfo::exists(thumb0)) rec.thumbnail = thumb0;
-    else if (QFileInfo::exists(thumb1)) rec.thumbnail = thumb1;
+    if (QFileInfo::exists(thumb0)) rec.thumbnailPath = thumb0;
+    else if (QFileInfo::exists(thumb1)) rec.thumbnailPath = thumb1;
 
     out.push_back(rec);
   }

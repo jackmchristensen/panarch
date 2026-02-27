@@ -24,12 +24,23 @@
 #pragma once
 #include <QString>
 #include <QVector>
+#include <QDateTime>
 
 struct AssetRecord {
-  QString path;
-  QString name;
-  QString type;
-  QString thumbnail;
+  QString id;
+  QString entryPath;
+  QString displayName;
+  QString fileExt;
+  QString type;       // type currently stores file extension TODO replace with fileExt
+  QString thumbnailPath;
+  QDateTime mtime;
+  quint64 fileSize = 0;
+
+  QString kind;
+  QString defaultPrimPath;
+  bool hasVariants = false;
+  bool hasPayloads = false;
+  bool hasReferences = false;
 };
 
 class AssetIndex {

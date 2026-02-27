@@ -12,10 +12,10 @@ QVariant AssetListModel::data(const QModelIndex& index, int role) const {
 
   const auto& a = m_assets[index.row()];
   switch (role) {
-    case NameRole: return a.name;
-    case PathRole: return a.path;
+    case NameRole: return a.displayName;
+    case PathRole: return a.entryPath;
     case TypeRole: return a.type;
-    case ThumbnailRole: return a.thumbnail;
+    case ThumbnailRole: return a.thumbnailPath;
     default: return {};
   };
 }

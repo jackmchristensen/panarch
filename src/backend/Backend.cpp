@@ -42,10 +42,10 @@ void Backend::selectIndex(int index) {
   const AssetRecord* rec = m_assets.at(index);
   if (!rec) return;
 
-  m_selectedPath = rec->path;
-  m_selectedName = rec->name;
+  m_selectedPath = rec->entryPath;
+  m_selectedName = rec->displayName;
   m_selectedType = rec->type;
-  m_selectedThumbnail = rec->thumbnail;
+  m_selectedThumbnail = rec->thumbnailPath;
   emit selectedChanged();
 }
 
