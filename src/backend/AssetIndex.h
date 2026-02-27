@@ -25,6 +25,7 @@
 #include <QString>
 #include <QVector>
 #include <QDateTime>
+#include <QJsonObject>
 
 struct AssetRecord {
   QString id;
@@ -41,6 +42,31 @@ struct AssetRecord {
   bool hasVariants = false;
   bool hasPayloads = false;
   bool hasReferences = false;
+};
+
+struct AssetDetails {
+  QString id;
+  QString entryPath;
+
+  QString upAxis;
+  double metersPerUnit = 0.0;
+  double framesPerSecond = 0.0;
+  double timeCodesPerSecond = 0.0;
+
+  QJsonObject assetInfo;
+
+  QStringList dependencies;
+  QStringList sublayers;
+  QStringList payloads;
+  QStringList references;
+
+  QJsonObject variantSets;
+
+  int primCount = 0;
+  QStringList materialBindings;
+
+  QJsonObject usdMeta;
+  QJsonObject userMeta;
 };
 
 class AssetIndex {
