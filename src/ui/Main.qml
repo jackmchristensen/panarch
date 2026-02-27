@@ -62,7 +62,7 @@ ApplicationWindow {
     }
 
     Frame {
-      SplitView.preferredWidth: 700
+      SplitView.preferredWidth: 746
       SplitView.minimumWidth: 320
       Layout.fillWidth: true
       Layout.fillHeight: true
