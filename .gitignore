@@ -268,3 +268,6 @@ dist/
 # Kate
 *.kate-swp
 .kateproject.*
+
+# User
+.notes/
