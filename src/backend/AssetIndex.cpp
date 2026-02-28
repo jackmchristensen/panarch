@@ -38,13 +38,21 @@ QVector<AssetRecord> AssetIndex::scan(const QString& rootDir) {
   QJsonArray arr = doc.array();
 
   for(const QJsonValue& val : arr) {
-    QString path = val.toString();
+    if (!val.isObject())
+      continue;
+
+    QJsonObject obj = val.toObject();
+
+    QString path = obj["entryPath"].toString();
     QFileInfo fi(path);
 
     AssetRecord rec;
-    rec.entryPath = fi.absoluteFilePath();
+    rec.id = obj["id"].toString();
+    rec.entryPath = obj["entryPath"].toString();
     rec.displayName = fi.completeBaseName();
     rec.type = fi.suffix().toLower();
+    rec.mtime.setMSecsSinceEpoch(static_cast<qint64>(obj["mtime"].toString().toLongLong()));
+    rec.fileSize = static_cast<quint64>(obj["size"].toString().toULongLong());
 
     // Sidecar files for thumbnail. Would like to replace with an auto thumbnail renderer in the future
     // asset.usd.png or asset.png next to asset.usd

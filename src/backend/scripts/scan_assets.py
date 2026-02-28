@@ -6,7 +6,7 @@ by other USD files in the tree). C++ uses this list to exclude them from
 results.
 """
 
-import os, sys, json
+import os, sys, json, hashlib
 from collections import defaultdict
 
 try:
@@ -99,7 +99,19 @@ def main():
     entry_candidates = [f for f in usd_files if inbound[f] == 0]
     internal_layers  = [f for f in usd_files if inbound[f] > 0]
 
-    print(json.dumps(sorted(entry_candidates)))
+    records = [
+        {"entryPath": path}
+        for path in sorted(entry_candidates)
+    ]
+
+    for rec in records:
+        path = rec.get("entryPath")
+        assert path is not None
+        rec["id"] = hashlib.sha1(path.encode('utf-8')).hexdigest()
+        rec["size"] = str(os.path.getsize(path))
+        rec["mtime"] = str(os.path.getmtime(path))
+
+    print(json.dumps(records))
 
     # print("\nLikely entry layers (inboud == 0):")
     # for f in sorted(entry_candidates):
