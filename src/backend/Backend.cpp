@@ -46,6 +46,7 @@ void Backend::selectIndex(int index) {
   m_selectedName = rec->displayName;
   m_selectedType = rec->type;
   m_selectedThumbnail = rec->thumbnailPath;
+  m_selectedMTime = rec->mtime;
   emit selectedChanged();
 }
 

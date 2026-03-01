@@ -232,6 +232,14 @@ ApplicationWindow {
             wrapMode: Text.WrapAnywhere
             width: parent.width
           }
+          
+          Text {
+            text: backend.selectedMTime
+            color: Theme.textSecondary
+            font.pixelSize: Theme.bodySmall 
+            wrapMode: Text.WrapAnywhere
+            width: parent.width
+          }
         }
 
         // Empty state

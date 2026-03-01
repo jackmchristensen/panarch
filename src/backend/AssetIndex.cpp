@@ -51,7 +51,7 @@ QVector<AssetRecord> AssetIndex::scan(const QString& rootDir) {
     rec.entryPath = obj["entryPath"].toString();
     rec.displayName = fi.completeBaseName();
     rec.type = fi.suffix().toLower();
-    rec.mtime.setMSecsSinceEpoch(static_cast<qint64>(obj["mtime"].toString().toLongLong()));
+    rec.mtime.setSecsSinceEpoch(static_cast<qint64>(obj["mtime"].toString().toDouble()));
     rec.fileSize = static_cast<quint64>(obj["size"].toString().toULongLong());
 
     // Sidecar files for thumbnail. Would like to replace with an auto thumbnail renderer in the future
