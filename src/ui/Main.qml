@@ -234,7 +234,7 @@ ApplicationWindow {
           }
           
           Text {
-            text: backend.selectedMTime
+            text: "Modified: " + backend.selectedMTime
             color: Theme.textSecondary
             font.pixelSize: Theme.bodySmall 
             wrapMode: Text.WrapAnywhere
