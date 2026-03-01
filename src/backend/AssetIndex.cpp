@@ -50,7 +50,7 @@ QVector<AssetRecord> AssetIndex::scan(const QString& rootDir) {
     rec.id = obj["id"].toString();
     rec.entryPath = obj["entryPath"].toString();
     rec.displayName = fi.completeBaseName();
-    rec.type = fi.suffix().toLower();
+    rec.fileExt = fi.suffix().toLower();
     rec.mtime.setSecsSinceEpoch(static_cast<qint64>(obj["mtime"].toString().toDouble()));
     rec.fileSize = static_cast<quint64>(obj["size"].toString().toULongLong());
 

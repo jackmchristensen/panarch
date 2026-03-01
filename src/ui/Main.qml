@@ -220,7 +220,7 @@ ApplicationWindow {
           }
 
           Text {
-            text: backend.selectedType.toUpperCase()
+            text: backend.selectedExt.toUpperCase()
             color: Theme.textAccent
             font.pixelSize: Theme.bodySmall
           }

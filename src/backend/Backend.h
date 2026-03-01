@@ -9,7 +9,7 @@ class Backend : public QObject {
   Q_PROPERTY(AssetListModel* assets READ assets CONSTANT)
   Q_PROPERTY(QString selectedPath READ selectedPath NOTIFY selectedChanged)
   Q_PROPERTY(QString selectedName READ selectedName NOTIFY selectedChanged)
-  Q_PROPERTY(QString selectedType READ selectedType NOTIFY selectedChanged)
+  Q_PROPERTY(QString selectedExt READ selectedExt NOTIFY selectedChanged)
   Q_PROPERTY(QString selectedMTime READ selectedMTime NOTIFY selectedChanged)
   Q_PROPERTY(QString selectedThumbnail READ selectedThumbnail NOTIFY selectedChanged)
   Q_PROPERTY(QStringList libraryRoots READ libraryRoots NOTIFY libraryRootsChanged)
@@ -21,7 +21,7 @@ public:
 
   QString selectedPath() const { return m_selectedPath; }
   QString selectedName() const { return m_selectedName; }
-  QString selectedType() const { return m_selectedType; }
+  QString selectedEXT() const { return m_selectedExt; }
   QString selectedMTime() const { return m_selectedMTime.toString("yyyy-MM-dd hh:mm"); }
   QString selectedThumbnail() const { return m_selectedThumbnail; }
   QStringList libraryRoots() const { return m_libraryRoots; }
@@ -44,7 +44,7 @@ private:
   AssetListModel m_assets;
   QString m_selectedPath;
   QString m_selectedName;
-  QString m_selectedType;
+  QString m_selectedExt;
   QDateTime m_selectedMTime;
   QString m_selectedThumbnail;
   QStringList m_libraryRoots;

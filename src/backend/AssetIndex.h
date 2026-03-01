@@ -32,7 +32,6 @@ struct AssetRecord {
   QString entryPath;
   QString displayName;
   QString fileExt;
-  QString type;       // type currently stores file extension TODO replace with fileExt
   QString thumbnailPath;
   QDateTime mtime;
   quint64 fileSize = 0;
