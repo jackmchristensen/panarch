@@ -8,6 +8,7 @@ results.
 
 import os, sys, json, hashlib
 from collections import defaultdict
+from typing import Any
 
 try:
     from pxr import Sdf
@@ -58,6 +59,11 @@ def collect_layer_deps(layer_path: str) -> set[str]:
     if not layer:
         return deps
 
+    # layer.GetPrimAtPath(layer.GetDefaultPrimAsPath()).kind) -> AssetRecord.kind
+    # layer.defaultPrimAsPath -> AssetRecord.defaultPrimPath
+    # layer.timeCodesPerSecond -> AssetDetails.timeCodesPerSecond
+    # layer.framesPerSecond -> AssetDetails.framesPerSecond
+
     for sub in layer.subLayerPaths:
         r = resolve_against_layer(layer, sub)
         if r:
@@ -70,6 +76,19 @@ def collect_layer_deps(layer_path: str) -> set[str]:
 
     return deps
 
+def collect_asset_data(layer_path: str) -> dict[str, str]:
+    layer = Sdf.Layer.FindOrOpen(layer_path) # pyright: ignore
+    defaultPrimPath = layer.GetDefaultPrimAsPath()
+    prim = layer.GetPrimAtPath(defaultPrimPath)
+
+    recordData = {
+        'defaultPrimPath': defaultPrimPath,
+        'kind': prim.kind,
+        'displayName': prim.name
+    }
+
+    return recordData
+
 
 def build_inbound_graph(root_dir: str):
     usd_files = list(iter_usd_files(root_dir))
@@ -77,15 +96,17 @@ def build_inbound_graph(root_dir: str):
 
     inbound = defaultdict(int)      # file -> number of other files pointing to it
     outbound = defaultdict(set)     # file -> deps
+    asset_data: dict[str, dict[str, str]] = {}
 
     for f in usd_files:
         deps = collect_layer_deps(f)
         local_deps = { d for d in deps if d in usd_set }
+        asset_data[f] = collect_asset_data(f)
         outbound[f] = local_deps
         for d in local_deps:
             inbound[d] += 1
 
-    return usd_files, inbound, outbound
+    return usd_files, inbound, outbound, asset_data
 
 
 def main():
@@ -94,12 +115,12 @@ def main():
         sys.exit(2)
 
     root_dir = norm(sys.argv[1])
-    usd_files, inbound, outbound = build_inbound_graph(root_dir)
+    usd_files, inbound, outbound, asset_data = build_inbound_graph(root_dir)
 
     entry_candidates = [f for f in usd_files if inbound[f] == 0]
     internal_layers  = [f for f in usd_files if inbound[f] > 0]
 
-    records = [
+    records: list[dict[str, Any]] = [
         {"entryPath": path}
         for path in sorted(entry_candidates)
     ]
@@ -108,8 +129,14 @@ def main():
         path = rec.get("entryPath")
         assert path is not None
         rec["id"] = hashlib.sha1(path.encode('utf-8')).hexdigest()
-        rec["size"] = str(os.path.getsize(path))
-        rec["mtime"] = str(os.path.getmtime(path))
+        rec["size"] = os.path.getsize(path)
+        rec["mtime"] = os.path.getmtime(path)
+        tmp = asset_data.get(path)
+        assert tmp is not None
+        rec["defaultPrimPath"] = str(tmp.get("defaultPrimPath"))
+        rec["kind"] = str(tmp.get("kind"))
+        rec["displayName"] = str(tmp.get("displayName"))
+
 
     print(json.dumps(records))
 

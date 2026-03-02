@@ -11,6 +11,9 @@ class Backend : public QObject {
   Q_PROPERTY(QString selectedName READ selectedName NOTIFY selectedChanged)
   Q_PROPERTY(QString selectedExt READ selectedExt NOTIFY selectedChanged)
   Q_PROPERTY(QString selectedMTime READ selectedMTime NOTIFY selectedChanged)
+  Q_PROPERTY(quint64 selectedSize READ selectedSize NOTIFY selectedChanged)
+  Q_PROPERTY(QString selectedDefaultPrim READ selectedDefaultPrim NOTIFY selectedChanged)
+  Q_PROPERTY(QString selectedKind READ selectedKind NOTIFY selectedChanged)
   Q_PROPERTY(QString selectedThumbnail READ selectedThumbnail NOTIFY selectedChanged)
   Q_PROPERTY(QStringList libraryRoots READ libraryRoots NOTIFY libraryRootsChanged)
 
@@ -23,6 +26,9 @@ public:
   QString selectedName() const { return m_selectedName; }
   QString selectedExt() const { return m_selectedExt; }
   QString selectedMTime() const { return m_selectedMTime.toString("yyyy-MM-dd hh:mm"); }
+  quint64 selectedSize() const { return m_selectedSize; }
+  QString selectedDefaultPrim() const { return m_selectedDefaultPrim; }
+  QString selectedKind() const { return m_selectedKind; }
   QString selectedThumbnail() const { return m_selectedThumbnail; }
   QStringList libraryRoots() const { return m_libraryRoots; }
 
@@ -32,6 +38,7 @@ public:
   Q_INVOKABLE void loadLibrary(const QString& rootDir);
   Q_INVOKABLE void selectIndex(int index);
   Q_INVOKABLE void removeLibraryRoot(const QString& path);
+  Q_INVOKABLE void copySelectedPath();
 
   void saveLibraryRoots(const QStringList& roots);
   QStringList loadLibraryRoots();
@@ -42,10 +49,14 @@ signals:
 
 private:
   AssetListModel m_assets;
+  qint32 m_selectedIndex;
   QString m_selectedPath;
   QString m_selectedName;
   QString m_selectedExt;
   QDateTime m_selectedMTime;
+  quint64 m_selectedSize;
+  QString m_selectedDefaultPrim;
+  QString m_selectedKind;
   QString m_selectedThumbnail;
   QStringList m_libraryRoots;
 };

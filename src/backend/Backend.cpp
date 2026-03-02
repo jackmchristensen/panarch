@@ -1,4 +1,6 @@
 #include <QSettings>
+#include <QClipboard>
+#include <QGuiApplication>
 #include "backend/Backend.h"
 #include "backend/AssetIndex.h"
 
@@ -42,10 +44,15 @@ void Backend::selectIndex(int index) {
   const AssetRecord* rec = m_assets.at(index);
   if (!rec) return;
 
+  m_selectedIndex = index;
+
   m_selectedPath = rec->entryPath;
   m_selectedName = rec->displayName;
   m_selectedExt = rec->fileExt;
   m_selectedThumbnail = rec->thumbnailPath;
+  m_selectedSize = rec->fileSize;
+  m_selectedDefaultPrim = rec->defaultPrimPath;
+  m_selectedKind = rec->kind;
   m_selectedMTime = rec->mtime;
   emit selectedChanged();
 }
@@ -66,4 +73,12 @@ void Backend::removeLibraryRoot(const QString& path) {
   saveLibraryRoots(roots);
   emit libraryRootsChanged();
   rescan();
+}
+
+void Backend::copySelectedPath() {
+  const AssetRecord* rec = m_assets.at(m_selectedIndex);
+  if (!rec) return;
+  
+  QClipboard* clipboard = QGuiApplication::clipboard();
+  clipboard->setText(rec->entryPath);
 }

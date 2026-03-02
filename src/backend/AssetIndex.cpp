@@ -5,6 +5,7 @@
 #include <QJsonDocument>
 #include <QJsonArray>
 #include <QCoreApplication>
+#include <qdebug.h>
 
 static bool isUsdExt(const QString& ext) {
   const auto e = ext.toLower();
@@ -49,10 +50,12 @@ QVector<AssetRecord> AssetIndex::scan(const QString& rootDir) {
     AssetRecord rec;
     rec.id = obj["id"].toString();
     rec.entryPath = obj["entryPath"].toString();
-    rec.displayName = fi.completeBaseName();
+    rec.displayName = obj["displayName"].toString();
     rec.fileExt = fi.suffix().toLower();
-    rec.mtime.setSecsSinceEpoch(static_cast<qint64>(obj["mtime"].toString().toDouble()));
-    rec.fileSize = static_cast<quint64>(obj["size"].toString().toULongLong());
+    rec.mtime.setSecsSinceEpoch(static_cast<qint64>(obj["mtime"].toInteger()));
+    rec.fileSize = static_cast<quint64>(obj["size"].toInteger());
+    rec.kind = obj["kind"].toString();
+    rec.defaultPrimPath = obj["defaultPrimPath"].toString();
 
     // Sidecar files for thumbnail. Would like to replace with an auto thumbnail renderer in the future
     // asset.usd.png or asset.png next to asset.usd

@@ -175,84 +175,185 @@ ApplicationWindow {
         anchors.margins: 12
         spacing: 12
 
-        Label {
-          text: "Selected Asset"
-          font.pixelSize: Theme.h2
-          font.bold: true
-          color: Theme.text
-        }
+        ScrollView{
+          id: infoScroll
+          Layout.fillWidth: true
+          Layout.fillHeight: true
+          clip: true
 
-        Column {
-          spacing: 8
-          visible: backend.selectedPath !== ""
-          width: parent.width
+          Column {
+            spacing: 10
+            width: infoScroll.availableWidth
 
-          // Thumbnail preview
-          Rectangle {
-            width: parent.width
-            height: width
-            color: Theme.card
-            border.color: Theme.border
-            radius: Theme.radius
-
-            Image {
-              anchors.fill: parent
-              anchors.margins: 8
-              source: backend.selectedThumbnail ? "file://" + backend.selectedThumbnail : ""
-              fillMode: Image.PreserveAspectFit
+            // Header
+            Label {
+              text: "Selected Asset"
+              font.pixelSize: Theme.h2
+              font.bold: true
+              color: Theme.text
             }
 
-            Text {
-              anchors.centerIn: parent
-              text: "📦"
-              font.pixelSize: 64
-              visible: !backend.selectedThumbnail
+            // Empty state
+            Column {
+              visible: backend.selectedPath === ""
+              width: parent.width
+              spacing: 6
+
+              Text {
+                text: "No asset selected"
+                color: Theme.textDisabled
+                font.pixelSize: Theme.body
+              }
+
+              Text {
+                text: "Select an asset in the grid to see dtails here."
+                color: Theme.textSecondary
+                font.pixelSize: Theme.bodySmall
+                wrapMode: Text.WrapAnywhere
+              }
+            }
+
+            // Details state
+            Column {
+              spacing: 10
+              visible: backend.selectedPath !== ""
+              width: parent.width
+
+              // Thumbnail preview
+              Rectangle {
+                width: parent.width
+                height: Math.min(width, 280)
+                color: Theme.card
+                border.color: Theme.border
+                radius: Theme.radius
+
+                Image {
+                  anchors.fill: parent
+                  anchors.margins: 8
+                  source: backend.selectedThumbnail ? "file://" + backend.selectedThumbnail : ""
+                  fillMode: Image.PreserveAspectFit
+                }
+
+                Text {
+                  anchors.centerIn: parent
+                  text: "📦"
+                  font.pixelSize: 64
+                  visible: !backend.selectedThumbnail
+                }
+              }
+
+              // Name + ext chip
+              Row {
+                width: parent.width
+                spacing: 10
+
+                Text {
+                  text: backend.selectedName
+                  color: Theme.text
+                  font.pixelSize: Theme.h2
+                  font.bold: true
+                  width: parent.width - extChip.width - 10
+                  wrapMode: Text.WrapAnywhere
+                  elide: Text.ElideRight
+                }
+
+                Rectangle {
+                  id: extChip
+                  radius: 8
+                  height: 24
+                  color: Theme.panel
+                  border.color: Theme.border
+                  border.width: Theme.borderWidth
+                  width: Math.max(52, extLabel.implicitWidth + 16)
+
+                  Text {
+                    id: extLabel
+                    anchors.centerIn: parent
+                    text: backend.selectedExt.toUpperCase()
+                    color: Theme.textAccent
+                    font.pixelSize: Theme.bodySmall
+                    font.bold: true
+                  }
+                }
+              }
+
+              // Info rows
+              Column {
+                width: parent.width
+                spacing: 6
+
+                // Modified
+                Row {
+                  width: parent.width
+                  spacing: 8
+
+                  Text {
+                    text: "Modified"
+                    color: Theme.textSecondary
+                    font.pixelSize: Theme.bodySmall
+                    width: 72
+                  }
+
+                  Text {
+                    text: backend.selectedMTime.length ? backend.selectedMTime : "—"
+                    color: Theme.text
+                    font.pixelSize: Theme.bodySmall
+                    wrapMode: Text.NoWrap
+                    elide: Text.ElideRight
+                    width: parent.width - 72 - 8
+                  }
+                }
+
+                // Path
+                Text {
+                  text: "Path"
+                  color: Theme.textSecondary
+                  font.pixelSize: Theme.bodySmall
+                }
+
+                Rectangle {
+                  width: Math.min(parent.width, pathText.implicitWidth + 20)
+                  implicitHeight: pathText.implicitHeight + 20
+                  radius: Theme.radiusSmall
+                  color: Theme.panel
+                  border.color: Theme.border
+                  border.width: Theme.borderWidth
+
+                  Text {
+                    id: pathText
+                    anchors.fill: parent
+                    anchors.margins: 10
+                    text: backend.selectedPath
+                    color: Theme.textSecondary
+                    font.pixelSize: Theme.bodySmall
+                    wrapMode: Text.WrapAnywhere
+                  }
+                }
+              }
+
+              // Actions
+              Row {
+                width: parent.width
+                spacing: 8
+
+                PButton {
+                  text: "Copy"
+                  onClicked: backend.copySelectedPath()
+                }
+
+                PButton {
+                  text: "Reveal"
+                  // TODO implement backend.revealSelectedInFolder()
+                }
+                
+                PButton {
+                  text: "Open"
+                  // TODO implement backend.openSelected()
+                }
+              }
             }
           }
-
-          Text {
-            text: backend.selectedName
-            color: Theme.text
-            font.pixelSize: Theme.h2
-            font.bold: true
-            width: parent.width
-            wrapMode: Text.WrapAnywhere
-          }
-
-          Text {
-            text: backend.selectedExt.toUpperCase()
-            color: Theme.textAccent
-            font.pixelSize: Theme.bodySmall
-          }
-
-          Text {
-            text: backend.selectedPath
-            color: Theme.textSecondary
-            font.pixelSize: Theme.bodySmall 
-            wrapMode: Text.WrapAnywhere
-            width: parent.width
-          }
-          
-          Text {
-            text: "Modified: " + backend.selectedMTime
-            color: Theme.textSecondary
-            font.pixelSize: Theme.bodySmall 
-            wrapMode: Text.WrapAnywhere
-            width: parent.width
-          }
         }
-
-        // Empty state
-        // Would like to replace this frame with a drawer in the future
-        // which would allow for the panel to not be rendered when empty
-        Text {
-          text: "No asset selected"
-          color: Theme.textDisabled
-          font.pixelSize: Theme.body
-          visible: backend.selectedPath === ""
-        }
-
-        Item { Layout.fillHeight: true }
       }
     }
   }
