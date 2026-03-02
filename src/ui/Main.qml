@@ -210,7 +210,7 @@ ApplicationWindow {
               }
 
               Text {
-                text: "Select an asset in the grid to see dtails here."
+                text: "Select an asset in the grid to see details here."
                 color: Theme.textSecondary
                 font.pixelSize: Theme.bodySmall
                 wrapMode: Text.WrapAnywhere
