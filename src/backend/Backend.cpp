@@ -44,7 +44,6 @@ void Backend::selectIndex(int index) {
 
   m_selectedPath = rec->entryPath;
   m_selectedName = rec->displayName;
-  m_selectedType = rec->type;
   m_selectedExt = rec->fileExt;
   m_selectedThumbnail = rec->thumbnailPath;
   m_selectedMTime = rec->mtime;

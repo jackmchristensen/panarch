@@ -21,7 +21,7 @@ public:
 
   QString selectedPath() const { return m_selectedPath; }
   QString selectedName() const { return m_selectedName; }
-  QString selectedEXT() const { return m_selectedExt; }
+  QString selectedExt() const { return m_selectedExt; }
   QString selectedMTime() const { return m_selectedMTime.toString("yyyy-MM-dd hh:mm"); }
   QString selectedThumbnail() const { return m_selectedThumbnail; }
   QStringList libraryRoots() const { return m_libraryRoots; }
