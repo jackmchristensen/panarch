@@ -19,6 +19,7 @@ ApplicationWindow {
     background: Rectangle { color: Theme.bg }
 
     RowLayout {
+      anchors.fill: parent
       spacing: 10
 
       PButton {
@@ -26,6 +27,18 @@ ApplicationWindow {
         Layout.topMargin: Theme.s3
         text: "Add Library..."
         onClicked: folderDialog.open()
+      }
+
+      Item { Layout.fillWidth: true }
+
+      PButton {
+        id: toggle
+        Layout.alignment: Qt.AlignRight
+        Layout.topMargin: Theme.s3
+        Layout.rightMargin: 6
+        Layout.minimumWidth: toggle.implicitHeight
+        text: "󰔎"
+        onClicked: Theme.toggleTheme()
       }
 
       // PButton {
