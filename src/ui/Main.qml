@@ -307,7 +307,29 @@ ApplicationWindow {
                     width: parent.width - 72 - 8
                   }
                 }
-                
+
+                // Default prim path
+                Row {
+                  width: parent.width
+                  spacing: 8
+
+                  Text {
+                    text: "Defualt Prim"
+                    color: Theme.textSecondary
+                    font.pixelSize: Theme.bodySmall
+                    width: 72
+                  }
+
+                  Text {
+                    text: backend.selectedDefaultPrim.length ? backend.selectedDefaultPrim : "—"
+                    color: Theme.text
+                    font.pixelSize: Theme.bodySmall
+                    wrapMode: Text.NoWrap
+                    elide: Text.ElideRight
+                    width: parent.width - 72 - 8
+                  }
+                }
+
                 // Kind
                 Row {
                   width: parent.width
