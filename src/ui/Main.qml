@@ -303,6 +303,50 @@ ApplicationWindow {
                     width: parent.width - 72 - 8
                   }
                 }
+                
+                // Kind
+                Row {
+                  width: parent.width
+                  spacing: 8
+
+                  Text {
+                    text: "Kind"
+                    color: Theme.textSecondary
+                    font.pixelSize: Theme.bodySmall
+                    width: 72
+                  }
+
+                  Text {
+                    text: backend.selectedKind.length ? backend.selectedKind : "—"
+                    color: Theme.text
+                    font.pixelSize: Theme.bodySmall
+                    wrapMode: Text.NoWrap
+                    elide: Text.ElideRight
+                    width: parent.width - 72 - 8
+                  }
+                }
+
+                // File size
+                Row {
+                  width: parent.width
+                  spacing: 8
+
+                  Text {
+                    text: "Size"
+                    color: Theme.textSecondary
+                    font.pixelSize: Theme.bodySmall
+                    width: 72
+                  }
+
+                  Text {
+                    text: backend.selectedSize + " B"
+                    color: Theme.text
+                    font.pixelSize: Theme.bodySmall
+                    wrapMode: Text.NoWrap
+                    elide: Text.ElideRight
+                    width: parent.width - 72 - 8
+                  }
+                }
 
                 // Path
                 Text {
