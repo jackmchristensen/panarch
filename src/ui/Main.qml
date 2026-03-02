@@ -28,19 +28,10 @@ ApplicationWindow {
         onClicked: folderDialog.open()
       }
 
-      PButton {
-        Layout.topMargin: Theme.s3
-        text: "File"
-        onClicked: dropdown.open()
-      }
-
-      FolderDialog {
-        id: folderDialog
-        title: "Select Asset Library Root"
-        onAccepted: {
-          backend.addLibraryRoot(selectedFolder.toString().replace("file://", ""))
-        }
-      }
+      // PButton {
+      //   Layout.topMargin: Theme.s3
+      //   text: "File"
+      // }
     }
   }
 
