@@ -360,7 +360,7 @@ ApplicationWindow {
                   spacing: 8
 
                   Text {
-                    text: "Defualt Prim"
+                    text: "Default Prim"
                     color: Theme.textSecondary
                     font.pixelSize: Theme.bodySmall
                     width: 72
