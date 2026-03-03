@@ -62,6 +62,6 @@ private:
   QString m_selectedThumbnail;
   QStringList m_libraryRoots;
 
-  SizeBase m_sizeBase = SizeBase::DECIMAL;
+  SizeBase m_sizeBase = SizeBase::BINARY;
   QString m_formatSize(quint64 size, SizeBase base) const;
 };

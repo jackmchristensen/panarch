@@ -105,5 +105,5 @@ QString Backend::m_formatSize(quint64 size, SizeBase base) const {
     n++;
   }
 
-  return QString("%1 %2").arg(f_size, 0, 'f', 2).arg(suffix[n+1]);
+  return QString("%1 %2").arg(f_size, 0, 'f', 2).arg(suffix[n]);
 }
