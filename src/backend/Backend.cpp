@@ -1,6 +1,9 @@
 #include <QSettings>
 #include <QClipboard>
 #include <QGuiApplication>
+#include <qcontainerfwd.h>
+#include <qfloat16.h>
+#include <qlogging.h>
 #include "backend/Backend.h"
 #include "backend/AssetIndex.h"
 
@@ -46,6 +49,8 @@ void Backend::selectIndex(int index) {
 
   m_selectedIndex = index;
 
+  qDebug() << "size=" << rec->fileSize;
+
   m_selectedPath = rec->entryPath;
   m_selectedName = rec->displayName;
   m_selectedExt = rec->fileExt;
@@ -81,4 +86,24 @@ void Backend::copySelectedPath() {
   
   QClipboard* clipboard = QGuiApplication::clipboard();
   clipboard->setText(rec->entryPath);
+}
+
+QString Backend::m_formatSize(quint64 size, SizeBase base) const {
+  const int divisor = base == SizeBase::BINARY ? 1024 : 1000;
+  if (size < divisor) return QString::number(size) + " B";
+
+  static const QVector<QString> binSuffix = { "B", "KiB", "MiB", "GiB", "TiB" };
+  static const QVector<QString> decSuffix = { "B", "KB", "MB", "GB", "TB" };
+
+  const QVector<QString> suffix = base == SizeBase::BINARY ? binSuffix : decSuffix;
+ 
+  int n = 0;
+  double f_size = static_cast<double>(size);
+
+  while (f_size > divisor && n < suffix.size() - 2) {
+    f_size /= divisor;
+    n++;
+  }
+
+  return QString("%1 %2").arg(f_size, 0, 'f', 2).arg(suffix[n+1]);
 }

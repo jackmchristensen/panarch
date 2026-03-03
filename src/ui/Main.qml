@@ -97,6 +97,10 @@ ApplicationWindow {
         cellHeight: 180
         model: backend.assets
 
+        displaced: Transition {
+          NumberAnimation { properties: "x,y"; duration: 1000}
+        }
+
         delegate: Item {
           width: assetGrid.cellWidth
           height: assetGrid.cellHeight
@@ -365,7 +369,7 @@ ApplicationWindow {
                   }
 
                   Text {
-                    text: backend.selectedSize + " B"
+                    text: backend.selectedSize
                     color: Theme.text
                     font.pixelSize: Theme.bodySmall
                     wrapMode: Text.NoWrap

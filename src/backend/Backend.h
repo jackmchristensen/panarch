@@ -4,6 +4,8 @@
 #include <qtmetamacros.h>
 #include "backend/AssetListModel.h"
 
+enum class SizeBase { BINARY, DECIMAL };
+
 class Backend : public QObject {
   Q_OBJECT
   Q_PROPERTY(AssetListModel* assets READ assets CONSTANT)
@@ -11,7 +13,7 @@ class Backend : public QObject {
   Q_PROPERTY(QString selectedName READ selectedName NOTIFY selectedChanged)
   Q_PROPERTY(QString selectedExt READ selectedExt NOTIFY selectedChanged)
   Q_PROPERTY(QString selectedMTime READ selectedMTime NOTIFY selectedChanged)
-  Q_PROPERTY(quint64 selectedSize READ selectedSize NOTIFY selectedChanged)
+  Q_PROPERTY(QString selectedSize READ selectedSize NOTIFY selectedChanged)
   Q_PROPERTY(QString selectedDefaultPrim READ selectedDefaultPrim NOTIFY selectedChanged)
   Q_PROPERTY(QString selectedKind READ selectedKind NOTIFY selectedChanged)
   Q_PROPERTY(QString selectedThumbnail READ selectedThumbnail NOTIFY selectedChanged)
@@ -26,7 +28,7 @@ public:
   QString selectedName() const { return m_selectedName; }
   QString selectedExt() const { return m_selectedExt; }
   QString selectedMTime() const { return m_selectedMTime.toString("yyyy-MM-dd hh:mm"); }
-  quint64 selectedSize() const { return m_selectedSize; }
+  QString selectedSize() const { return m_formatSize(m_selectedSize, m_sizeBase); }
   QString selectedDefaultPrim() const { return m_selectedDefaultPrim; }
   QString selectedKind() const { return m_selectedKind; }
   QString selectedThumbnail() const { return m_selectedThumbnail; }
@@ -49,14 +51,17 @@ signals:
 
 private:
   AssetListModel m_assets;
-  qint32 m_selectedIndex;
+  qint32 m_selectedIndex = -1;
   QString m_selectedPath;
   QString m_selectedName;
   QString m_selectedExt;
   QDateTime m_selectedMTime;
-  quint64 m_selectedSize;
+  quint64 m_selectedSize = 0;
   QString m_selectedDefaultPrim;
   QString m_selectedKind;
   QString m_selectedThumbnail;
   QStringList m_libraryRoots;
+
+  SizeBase m_sizeBase = SizeBase::DECIMAL;
+  QString m_formatSize(quint64 size, SizeBase base) const;
 };
