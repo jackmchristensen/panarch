@@ -5,6 +5,9 @@ import "."
 Button {
   id: root
 
+  property color colorBtn: Theme.card
+  property int borderWidthBtn: Theme.borderWidth
+
   hoverEnabled: true
 
   contentItem: Text {
@@ -20,11 +23,11 @@ Button {
   background: Rectangle {
     radius: Theme.radius
     border.color: Theme.border
-    border.width: Theme.borderWidth
+    border.width: root.borderWidthBtn
     color: !root.enabled ? Theme.card
       : root.down ? Theme.pressed
       : root.hovered ? Theme.hover
-      : Theme.card
+      : root.colorBtn
 
     Behavior on color { ColorAnimation { duration: 120 } }
     Behavior on scale { NumberAnimation { duration: 120 } }

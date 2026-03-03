@@ -17,6 +17,8 @@ Item {
     id: menuBtn
     anchors.centerIn: parent
     text: root.label
+    colorBtn: Theme.bg
+    borderWidthBtn: 0
 
     onClicked: popup.visible ? popup.close() : popup.open()
   }

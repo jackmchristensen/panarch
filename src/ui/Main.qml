@@ -26,11 +26,13 @@ ApplicationWindow {
 
     RowLayout {
       anchors.fill: parent
+      anchors.topMargin: 3
       spacing: 0
 
       PMenuButton {
         Layout.leftMargin: 5
-        Layout.topMargin: Theme.s3
+        Layout.alignment: Qt.AlignVCenter
+
         label: "File"
         items: [
           { text: "Add Library...", shortcut: "Ctrl+O", action: () => folderDialog.open() },
@@ -43,8 +45,7 @@ ApplicationWindow {
 
       PButton {
         id: toggle
-        Layout.alignment: Qt.AlignRight
-        Layout.topMargin: Theme.s3
+        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
         Layout.rightMargin: 5
         Layout.minimumWidth: toggle.implicitHeight
         text: "󰔎"
@@ -55,7 +56,10 @@ ApplicationWindow {
 
   SplitView {
     anchors.fill: parent
-    anchors.margins: 12
+    anchors.leftMargin: 12
+    anchors.rightMargin: 12
+    anchors.bottomMargin: 12
+    anchors.topMargin: 5
     orientation: Qt.Horizontal
 
     handle: Rectangle {
