@@ -15,12 +15,29 @@ ApplicationWindow {
     color: Theme.bg
   }
 
+  FolderDialog {
+    id: folderDialog
+    title: "Select a Library Folder"
+    onAccepted: backend.addLibrary(selectedFolder)
+  }
+
   header: ToolBar {
     background: Rectangle { color: Theme.bg }
 
     RowLayout {
       anchors.fill: parent
-      spacing: 10
+      spacing: 0
+
+      PMenuButton {
+        Layout.topMargin: Theme.s3
+        label: "File"
+        items: [
+          { text: "New", shortcut: "Ctrl+N", action: () => console.log("New") },
+          { text: "Open...", shortcut: "Ctrl+O", action: () => console.log("Open...") },
+          { separator: true },
+          { text: "Quit", shortcut: "Ctrl+Q", action: () => console.log("Quit") }
+        ]
+      }
 
       PButton {
         Layout.leftMargin: 6
@@ -40,11 +57,6 @@ ApplicationWindow {
         text: "󰔎"
         onClicked: Theme.toggleTheme()
       }
-
-      // PButton {
-      //   Layout.topMargin: Theme.s3
-      //   text: "File"
-      // }
     }
   }
 
