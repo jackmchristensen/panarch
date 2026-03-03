@@ -10,7 +10,7 @@ Item {
   property var items: []
   property color accentColor: Theme.primary
 
-  implicitWidth: menuBtn.implicitWidth + 16
+  implicitWidth: menuBtn.implicitWidth
   implicitHeight: menuBtn.implicitHeight
 
   PButton {

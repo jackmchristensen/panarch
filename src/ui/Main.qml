@@ -29,21 +29,14 @@ ApplicationWindow {
       spacing: 0
 
       PMenuButton {
+        Layout.leftMargin: 5
         Layout.topMargin: Theme.s3
         label: "File"
         items: [
-          { text: "New", shortcut: "Ctrl+N", action: () => console.log("New") },
-          { text: "Open...", shortcut: "Ctrl+O", action: () => console.log("Open...") },
+          { text: "Add Library...", shortcut: "Ctrl+O", action: () => folderDialog.open() },
           { separator: true },
           { text: "Quit", shortcut: "Ctrl+Q", action: () => console.log("Quit") }
         ]
-      }
-
-      PButton {
-        Layout.leftMargin: 6
-        Layout.topMargin: Theme.s3
-        text: "Add Library..."
-        onClicked: folderDialog.open()
       }
 
       Item { Layout.fillWidth: true }
@@ -52,7 +45,7 @@ ApplicationWindow {
         id: toggle
         Layout.alignment: Qt.AlignRight
         Layout.topMargin: Theme.s3
-        Layout.rightMargin: 6
+        Layout.rightMargin: 5
         Layout.minimumWidth: toggle.implicitHeight
         text: "󰔎"
         onClicked: Theme.toggleTheme()
@@ -279,7 +272,7 @@ ApplicationWindow {
 
                 Rectangle {
                   id: extChip
-                  radius: 8
+                  radius: Theme.radiusSmall
                   height: 24
                   color: Theme.panel
                   border.color: Theme.border
