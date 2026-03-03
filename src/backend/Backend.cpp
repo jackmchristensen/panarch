@@ -11,6 +11,7 @@ Backend::Backend(QObject* parent) : QObject(parent) {}
 
 void Backend::initialize() {
   rescan();
+  loadUserSettings();
 }
 
 void Backend::rescan() {
@@ -68,6 +69,16 @@ void Backend::saveLibraryRoots(const QStringList& roots) {
 QStringList Backend::loadLibraryRoots() {
   QSettings settings;
   return settings.value("library/roots").toStringList();
+}
+
+void Backend::saveUserSettings() {
+  QSettings settings;
+  settings.setValue("settings/sizeBase", static_cast<int>(m_settings.sizeBase));
+}
+
+void Backend::loadUserSettings() {
+  QSettings settings;
+  m_settings.sizeBase = static_cast<SizeBase>(settings.value("settings/sizeBase").toInt());
 }
 
 void Backend::removeLibraryRoot(const QString& path) {

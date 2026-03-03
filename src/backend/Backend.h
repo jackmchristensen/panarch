@@ -6,6 +6,11 @@
 
 enum class SizeBase { BINARY, DECIMAL };
 
+struct Settings {
+public:
+  SizeBase sizeBase = SizeBase::BINARY;
+};
+
 class Backend : public QObject {
   Q_OBJECT
   Q_PROPERTY(AssetListModel* assets READ assets CONSTANT)
@@ -28,7 +33,7 @@ public:
   QString selectedName() const { return m_selectedName; }
   QString selectedExt() const { return m_selectedExt; }
   QString selectedMTime() const { return m_selectedMTime.toString("yyyy-MM-dd hh:mm"); }
-  QString selectedSize() const { return m_formatSize(m_selectedSize, m_sizeBase); }
+  QString selectedSize() const { return m_formatSize(m_selectedSize, m_settings.sizeBase); }
   QString selectedDefaultPrim() const { return m_selectedDefaultPrim; }
   QString selectedKind() const { return m_selectedKind; }
   QString selectedThumbnail() const { return m_selectedThumbnail; }
@@ -44,6 +49,8 @@ public:
 
   void saveLibraryRoots(const QStringList& roots);
   QStringList loadLibraryRoots();
+  void saveUserSettings();
+  void loadUserSettings();
 
 signals:
   void selectedChanged();
@@ -62,6 +69,7 @@ private:
   QString m_selectedThumbnail;
   QStringList m_libraryRoots;
 
-  SizeBase m_sizeBase = SizeBase::BINARY;
+  Settings m_settings;
   QString m_formatSize(quint64 size, SizeBase base) const;
 };
+
