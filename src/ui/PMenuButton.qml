@@ -33,7 +33,7 @@ Item {
     closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutsideParent
 
     background: Rectangle {
-      color: Theme.bg
+      color: Theme.card
       border.color: Theme.border
       border.width: Theme.borderWidth
       radius: Theme.radius

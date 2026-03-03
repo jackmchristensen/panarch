@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 import QtQuick.Dialogs
+import Qt5Compat.GraphicalEffects
 import "."
 
 ApplicationWindow {
@@ -38,6 +39,26 @@ ApplicationWindow {
           { text: "Add Library...", shortcut: "Ctrl+O", action: () => folderDialog.open() },
           { separator: true },
           { text: "Quit", shortcut: "Ctrl+Q", action: () => console.log("Quit") }
+        ]
+      }
+
+      PMenuButton {
+        Layout.leftMargin: 5
+        Layout.alignment: Qt.AlignVCenter
+
+        label: "Edit"
+        items: [
+          { text: "Settings", shortcut: "Ctrl+,", action: () => console.log("Settings") },
+        ]
+      }
+ 
+      PMenuButton {
+        Layout.leftMargin: 5
+        Layout.alignment: Qt.AlignVCenter
+
+        label: "Help"
+        items: [
+          { text: "About", shortcut: "", action: () => console.log("About") },
         ]
       }
 
@@ -134,10 +155,22 @@ ApplicationWindow {
               Behavior on scale { NumberAnimation { duration: 120 } }
 
               Image {
+                id: imageThumb
                 anchors.fill: parent
                 anchors.margins: 4
                 source: model.thumbnail ? "file://" + model.thumbnail : ""
                 fillMode: Image.PreserveAspectFit
+
+                layer.enabled: true
+                layer.effect: OpacityMask {
+                  id: opacityMask
+                  maskSource: Rectangle {
+                    id: maskedRect
+                    width: imageThumb.width
+                    height: imageThumb.height
+                    radius: Theme.radiusSmall
+                  }
+                }
               }
 
               // Fallback icon when no thumbnail
