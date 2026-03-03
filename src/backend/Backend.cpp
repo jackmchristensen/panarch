@@ -49,8 +49,6 @@ void Backend::selectIndex(int index) {
 
   m_selectedIndex = index;
 
-  qDebug() << "size=" << rec->fileSize;
-
   m_selectedPath = rec->entryPath;
   m_selectedName = rec->displayName;
   m_selectedExt = rec->fileExt;
