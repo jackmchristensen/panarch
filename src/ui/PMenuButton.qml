@@ -23,6 +23,7 @@ Item {
 
   Popup {
     id: popup
+    parent: menuBtn
     y: root.height
     x: 0
     width: 200
@@ -33,7 +34,7 @@ Item {
       color: Theme.bg
       border.color: Theme.border
       border.width: Theme.borderWidth
-      radius: Theme.radiusSmall
+      radius: Theme.radius
     }
 
     contentItem: Column {
