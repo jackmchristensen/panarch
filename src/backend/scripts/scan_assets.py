@@ -96,6 +96,19 @@ def collect_asset_data(layer_path: str) -> dict[str, Any]:
 
     has_variants, has_payloads, has_references = check_prim_spec(prim)
 
+    if has_payloads:
+        for item in prim.payloadList.prependedItems:
+            payload_path = resolve_against_layer(layer, item.assetPath)
+            if not payload_path: continue
+            payload_layer = Sdf.Layer.FindOrOpen(payload_path) # pyright: ignore
+            if not payload_layer:
+                continue
+            payload_prim_path = payload_layer.GetDefaultPrimAsPath()
+            payload_prim = payload_layer.GetPrimAtPath(payload_prim_path)
+            v, _, r = check_prim_spec(payload_prim)
+            has_variants = has_variants or v
+            has_references = has_references or r
+
     recordData = {
         'defaultPrimPath': str(defaultPrimPath),
         'kind': prim.kind,

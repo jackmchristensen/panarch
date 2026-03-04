@@ -1,4 +1,4 @@
-import os, sys
+import os, sys, json
 from typing import Any
 
 try:
@@ -8,13 +8,37 @@ except ImportError:
     sys.exit(1)
 
 
-def collect_arcs(spec: Sdf.PrimSpec, payloads: list, references: list): # pyright: ignore
+def _collect_prim_arcs(spec: Sdf.PrimSpec, payloads: list, references: list):
     for item in spec.payloadList.prependedItems:
-        payloads.append(str(item.assetPath))
+        if str(item.assetPath) != "":
+            payloads.append(str(item.assetPath))
     for item in spec.referenceList.prependedItems:
-        references.append(str(item.assetPath))
+        if str(item.assetPath) != "":
+            references.append(str(item.assetPath))
     for child in spec.nameChildren:
-        collect_arcs(child, payloads, references)
+        _collect_prim_arcs(child, payloads, references)
+
+
+def collect_arcs(stage: Usd.Stage): # pyright: ignore
+    payloads = []
+    references = []
+    sublayers = []
+
+    for layer in stage.GetUsedLayers():
+        sublayers.extend(list(layer.subLayerPaths))
+        primPath = layer.GetDefaultPrimAsPath()
+        if not primPath:
+            continue
+        primSpec = layer.GetPrimAtPath(primPath)
+        if not primSpec:
+            continue
+        _collect_prim_arcs(primSpec, payloads, references)
+
+    return {
+        "sublayers": sublayers,
+        "payloads": payloads,
+        "references": references
+    }
 
 
 def get_variant_sets(prim: Usd.Prim) -> dict: # pyright: ignore
@@ -33,31 +57,26 @@ def main():
         sys.exit(2)
 
     assetPath = os.path.normpath(os.path.abspath(sys.argv[1]))
-    stage = Usd.Stage.Open(assetPath) # pyright: ignore
+    stage = Usd.Stage.Open(assetPath, Usd.Stage.LoadAll) # pyright: ignore
     if not stage:
         sys.exit(1)
 
-    rootLayer = stage.GetRootLayer()
     prim = stage.GetDefaultPrim()
-
-    payloads: list[str] = []
-    references: list[str] = []
-    primSpec = rootLayer.GetPrimAtPath(rootLayer.defaultPrim)
-    collect_arcs(primSpec, payloads, references)
+    arcs = collect_arcs(stage)
 
     details = {
         "upAxis": UsdGeom.GetStageUpAxis(stage), # pyright: ignore
         "metersPerUnit": UsdGeom.GetStageMetersPerUnit(stage), # pyright: ignore
         "framesPerSecond": stage.GetFramesPerSecond(),
         "timeCodesPerSecond": stage.GetTimeCodesPerSecond(),
-        "sublayers": list(rootLayer.subLayerPaths),
-        "payloads": payloads,
-        "references": references,
+        "sublayers": arcs["sublayers"],
+        "payloads": arcs["payloads"],
+        "references": arcs["references"],
         "primCount": sum(1 for _ in stage.Traverse()),
         "variantSets": get_variant_sets(prim) if prim else {}
     }
 
-    print(details)
+    print(json.dumps(details))
 
 if __name__ == "__main__":
     main()
