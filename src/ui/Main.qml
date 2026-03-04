@@ -108,17 +108,7 @@ ApplicationWindow {
         border.width: Theme.borderWidth
       }
 
-      // TextField {
-      //   anchors.horizontalCenter: parent.horizontalCenter
-      //   placeholderText: qsTr("Filter")
-      //
-      //   background: Rectangle {
-      //     width: parent.width
-      //     radius: Theme.radius
-      //     color: "#FFFFFF"
-      //   }
-      // }
-
+      // ──── AssetGrid ────────────────────────────────────────────
       GridView {
         id: assetGrid
         anchors.fill: parent
@@ -139,7 +129,7 @@ ApplicationWindow {
             anchors.centerIn: parent
             spacing: 8
 
-            // Thumbnail
+            // ──── Thumbnail ────────────────────────────────────────────
             Rectangle {
               id: thumb
               width: 120
@@ -180,6 +170,34 @@ ApplicationWindow {
                 font.pixelSize: 48
                 visible: !model.thumbnail
               }
+
+              Row {
+                anchors.bottom: parent.bottom
+                anchors.left: parent.left
+                anchors.margins: 8
+                spacing: 3
+
+                // Variant indicator
+                PIndicator {
+                  dotColor: Theme.secondary
+                  isVisible: model.hasVariants
+                  tooltip: "Has variants"
+                }
+
+                // Payload indicator
+                PIndicator {
+                  dotColor: Theme.yellow
+                  isVisible: model.hasPayloads
+                  tooltip: "Has payloads"
+                }
+
+                // Reference indicator
+                PIndicator {
+                  dotColor: Theme.primary
+                  isVisible: model.hasReferences
+                  tooltip: "Has references"
+                }
+              }
             }
 
             // Asset name
@@ -193,16 +211,26 @@ ApplicationWindow {
             }
           }
 
-          MouseArea {
-            id: mouseFlag
-            anchors.fill: parent
-            onClicked: backend.selectIndex(index)
-            hoverEnabled: true
-            cursorShape: Qt.PointingHandCursor
-
-            onPressed: thumb.scale = 0.99
-            onReleased: thumb.scale = 1.00
+          TapHandler {
+            onTapped: backend.selectIndex(index)
+            onPressedChanged: thumb.scale = pressed ? 0.97 : 1.0
           }
+
+          HoverHandler {
+            id: mouseFlag
+            cursorShape: Qt.PointingHandCursor
+          }
+
+          // MouseArea {
+          //   id: mouseFlag
+          //   anchors.fill: parent
+          //   onClicked: backend.selectIndex(index)
+          //   hoverEnabled: true
+          //   cursorShape: Qt.PointingHandCursor
+          //
+          //   onPressed: thumb.scale = 0.99
+          //   onReleased: thumb.scale = 1.00
+          // }
         }
       }
     }

@@ -136,7 +136,7 @@ def main():
         rec["defaultPrimPath"] = str(tmp.get("defaultPrimPath"))
         rec["kind"] = str(tmp.get("kind"))
         rec["displayName"] = str(tmp.get("displayName"))
-
+        rec["hasReferences"] = len(list(internal_layers)) > 0
 
     print(json.dumps(records))
 

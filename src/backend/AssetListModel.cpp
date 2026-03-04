@@ -16,6 +16,9 @@ QVariant AssetListModel::data(const QModelIndex& index, int role) const {
     case PathRole: return a.entryPath;
     case TypeRole: return a.fileExt;
     case ThumbnailRole: return a.thumbnailPath;
+    case HasVariantsRole: return a.hasVariants;
+    case HasPayloadsRole: return a.hasPayloads;
+    case HasReferencesRole: return a.hasReferences;
     default: return {};
   };
 }
@@ -25,7 +28,10 @@ QHash<int, QByteArray> AssetListModel::roleNames() const {
     {NameRole, "name"},
     {PathRole, "path"},
     {TypeRole, "type"},
-    {ThumbnailRole, "thumbnail"}
+    {ThumbnailRole, "thumbnail"},
+    {HasVariantsRole, "hasVariants"},
+    {HasPayloadsRole, "hasPayloads"},
+    {HasReferencesRole, "hasReferences"}
   };
 }
 

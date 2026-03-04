@@ -26,6 +26,7 @@ qt_add_resources(Panarch "ui"
     src/ui/Theme.qml
     src/ui/PButton.qml
     src/ui/PMenuButton.qml
+    src/ui/PIndicator.qml
     src/ui/Main.qml
 )
 

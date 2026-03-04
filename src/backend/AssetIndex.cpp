@@ -56,6 +56,8 @@ QVector<AssetRecord> AssetIndex::scan(const QString& rootDir) {
     rec.fileSize = static_cast<quint64>(obj["size"].toInteger());
     rec.kind = obj["kind"].toString();
     rec.defaultPrimPath = obj["defaultPrimPath"].toString();
+    rec.hasReferences = obj["hasReferences"].toBool();
+    rec.hasVariants = false;
 
     // Sidecar files for thumbnail. Would like to replace with an auto thumbnail renderer in the future
     // asset.usd.png or asset.png next to asset.usd

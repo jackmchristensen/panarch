@@ -47,6 +47,8 @@ QtObject {
   // Colors - Accent
   readonly property color primary: darkMode ? "#61AFEF" : "#4078F2"
   readonly property color secondary: darkMode ? "#C678DD" : "#A626A4"
+  readonly property color yellow: darkMode ? "#E5C07B" : "#EEA825"
+  readonly property color red: darkMode ? "#E05661" : "#E05661"
 
   // Colors - Status
   readonly property color success: darkMode ? "#98C379" : "#98C379"

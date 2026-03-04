@@ -38,7 +38,10 @@ public:
     NameRole = Qt::UserRole + 1,
     PathRole,
     TypeRole,
-    ThumbnailRole
+    ThumbnailRole,
+    HasVariantsRole,
+    HasPayloadsRole,
+    HasReferencesRole
   };
 
   explicit AssetListModel(QObject* parent = nullptr);
