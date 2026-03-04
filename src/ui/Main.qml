@@ -181,21 +181,21 @@ ApplicationWindow {
                 PIndicator {
                   dotColor: Theme.secondary
                   isVisible: model.hasVariants
-                  tooltip: "Has variants"
+                  tooltip: "Contains variants"
                 }
 
                 // Payload indicator
                 PIndicator {
                   dotColor: Theme.yellow
                   isVisible: model.hasPayloads
-                  tooltip: "Has payloads"
+                  tooltip: "Contains payloads"
                 }
 
                 // Reference indicator
                 PIndicator {
                   dotColor: Theme.primary
                   isVisible: model.hasReferences
-                  tooltip: "Has references"
+                  tooltip: "Contains references"
                 }
               }
             }
