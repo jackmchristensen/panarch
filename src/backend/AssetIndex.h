@@ -44,27 +44,23 @@ struct AssetRecord {
 };
 
 struct AssetDetails {
-  QString id;
-  QString entryPath;
-
+  // Stage level metadata
   QString upAxis;
   double metersPerUnit = 0.0;
   double framesPerSecond = 0.0;
   double timeCodesPerSecond = 0.0;
 
-  QJsonObject assetInfo;
-
-  QStringList dependencies;
+  // Composition arcs
   QStringList sublayers;
   QStringList payloads;
   QStringList references;
 
+  // Prim data
+  int primCount = 0;
   QJsonObject variantSets;
 
-  int primCount = 0;
-  QStringList materialBindings;
-
-  QJsonObject usdMeta;
+  // Asset metadata from USD
+  QJsonObject assetInfo;
   QJsonObject userMeta;
 };
 
