@@ -6,9 +6,9 @@ Rectangle {
 
   property color dotColor: "#FFFFFF"
   property bool isVisible: true
-  property bool useTooltip: true
   property string tooltip: ""
   property int tooltipDelay: 1000
+  property bool showTooltip: true
 
   width: 7
   height: 7
@@ -17,7 +17,7 @@ Rectangle {
   visible: isVisible
 
   PTooltip {
-    useTooltip: root.useTooltip
+    visible: root.showTooltip
     tooltip: root.tooltip
     tooltipDelay: root.tooltipDelay
   }

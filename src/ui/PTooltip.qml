@@ -6,13 +6,13 @@ Item {
   property int tooltipDelay: 1000
   property string tooltip: ""
   property Item target: parent
-  property bool useTooltip: true
 
   HoverHandler {
     id: hover
     parent: root.target
+    enabled: root.visible && root.tooltip !== ""
     onHoveredChanged: {
-      if (hovered && root.useTooltip) {
+      if (hover) {
         tooltipTimer.start()
       } else {
         tooltipTimer.stop()
