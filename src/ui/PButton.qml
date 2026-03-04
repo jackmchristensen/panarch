@@ -7,6 +7,7 @@ Button {
 
   property color colorBtn: Theme.card
   property int borderWidthBtn: Theme.borderWidth
+  property bool usePointer: true
 
   hoverEnabled: true
 
@@ -37,7 +38,7 @@ Button {
   onReleased: background.scale = 1.0
 
   HoverHandler {
-    cursorShape: Qt.PointingHandCursor
+    cursorShape: root.usePointer ? Qt.PointingHandCursor : Qt.ArrowCursor
   }
 
   padding: 10

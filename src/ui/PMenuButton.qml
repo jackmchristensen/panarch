@@ -17,6 +17,7 @@ Item {
     id: menuBtn
     anchors.centerIn: parent
     text: root.label
+    usePointer: false
     colorBtn: Theme.bg
     borderWidthBtn: 0
 
