@@ -79,14 +79,8 @@ def collect_layer_deps(layer_path: str) -> set[str]:
 
 def check_prim_spec(spec: Sdf.PrimSpec) -> tuple[bool, bool, bool]:
     has_variants = bool(spec.variantSets)
-    has_payloads = len(list(spec.payloadList.explicitItems)) > 0 or \
-                    len(list(spec.payloadList.addedItems)) > 0 or \
-                    len(list(spec.payloadList.prependedItems)) > 0 or \
-                    len(list(spec.payloadList.appendedItems)) > 0
-    has_references = len(list(spec.referenceList.explicitItems)) > 0 or \
-                    len(list(spec.referenceList.addedItems)) > 0 or \
-                    len(list(spec.referenceList.prependedItems)) > 0 or \
-                    len(list(spec.referenceList.appendedItems)) > 0
+    has_payloads = bool(spec.payloadList.GetAddedOrExplicitItems())
+    has_references = bool(spec.referenceList.GetAddedOrExplicitItems())
 
     for child in spec.nameChildren:
         v, p, r = check_prim_spec(child)
