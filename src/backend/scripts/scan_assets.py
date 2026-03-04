@@ -77,7 +77,7 @@ def collect_layer_deps(layer_path: str) -> set[str]:
     return deps
 
 
-def check_prim_spec(spec: Sdf.PrimSpec) -> tuple[bool, bool, bool]:
+def check_prim_spec(spec: Sdf.PrimSpec) -> tuple[bool, bool, bool]: #pyright: ignore
     has_variants = bool(spec.variantSets)
     has_payloads = bool(spec.payloadList.GetAddedOrExplicitItems())
     has_references = bool(spec.referenceList.GetAddedOrExplicitItems())
@@ -91,7 +91,7 @@ def check_prim_spec(spec: Sdf.PrimSpec) -> tuple[bool, bool, bool]:
     return has_variants, has_payloads, has_references
 
 
-def collect_asset_data(layer_path: str) -> dict[str, str]:
+def collect_asset_data(layer_path: str) -> dict[str, Any]:
     layer = Sdf.Layer.FindOrOpen(layer_path) # pyright: ignore
     if not layer:
         return {}
@@ -102,7 +102,7 @@ def collect_asset_data(layer_path: str) -> dict[str, str]:
     has_variants, has_payloads, has_references = check_prim_spec(prim)
 
     recordData = {
-        'defaultPrimPath': defaultPrimPath,
+        'defaultPrimPath': str(defaultPrimPath),
         'kind': prim.kind,
         'displayName': prim.name,
         'hasVariants': has_variants,
@@ -119,7 +119,7 @@ def build_inbound_graph(root_dir: str):
 
     inbound = defaultdict(int)      # file -> number of other files pointing to it
     outbound = defaultdict(set)     # file -> deps
-    asset_data: dict[str, dict[str, str]] = {}
+    asset_data: dict[str, dict[str, Any]] = {}
 
     for f in usd_files:
         deps = collect_layer_deps(f)
@@ -141,7 +141,7 @@ def main():
     usd_files, inbound, outbound, asset_data = build_inbound_graph(root_dir)
 
     entry_candidates = [f for f in usd_files if inbound[f] == 0]
-    internal_layers  = [f for f in usd_files if inbound[f] > 0]
+    # internal_layers  = [f for f in usd_files if inbound[f] > 0]
 
     records: list[dict[str, Any]] = [
         {"entryPath": path}
@@ -151,27 +151,16 @@ def main():
     for rec in records:
         path = rec.get("entryPath")
         assert path is not None
+ 
         rec["id"] = hashlib.sha1(path.encode('utf-8')).hexdigest()
         rec["size"] = os.path.getsize(path)
         rec["mtime"] = os.path.getmtime(path)
-        tmp = asset_data.get(path)
-        assert tmp is not None
-        rec["defaultPrimPath"] = str(tmp.get("defaultPrimPath"))
-        rec["kind"] = str(tmp.get("kind"))
-        rec["displayName"] = str(tmp.get("displayName"))
-        rec["hasVariants"] = bool(tmp.get("hasVariants"))
-        rec["hasPayloads"] = bool(tmp.get("hasPayloads"))
-        rec["hasReferences"] = bool(tmp.get("hasReferences"))
+ 
+        assert asset_data.get(path) is not None
+        rec |= asset_data.get(path)
+
 
     print(json.dumps(records))
-
-    # print("\nLikely entry layers (inboud == 0):")
-    # for f in sorted(entry_candidates):
-    #     print(f"  {f}")
-    #
-    # print("\nLikely internal layers (inbound > 0):")
-    # for f in sorted(internal_layers, key=lambda x: inbound[x], reverse=True):
-    #     print(f"  ({inbound[f]}) {f}")
 
 
 if __name__ == "__main__":
