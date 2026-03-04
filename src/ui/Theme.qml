@@ -37,6 +37,7 @@ QtObject {
   readonly property color textSecondary: darkMode ? "#828997" : "#696C77"
   readonly property color textDisabled: darkMode ? "#5C6370" : "#9DA0A6"
   readonly property color textInverse: darkMode ? "#FFFFFF" : "#FFFFFF"
+  readonly property color textKindChip: darkMode ? "#AAAAAA" : "#DDDDDD"
   readonly property color textAccent: darkMode ? "#61AFEF" : "#4078F2"
 
   // Colors - Borders
@@ -46,9 +47,10 @@ QtObject {
 
   // Colors - Accent
   readonly property color primary: darkMode ? "#61AFEF" : "#4078F2"
-  readonly property color secondary: darkMode ? "#C678DD" : "#A626A4"
+  readonly property color purple: darkMode ? "#C678DD" : "#A626A4"
   readonly property color yellow: darkMode ? "#E5C07B" : "#EEA825"
   readonly property color red: darkMode ? "#E05661" : "#E05661"
+  readonly property color cyan: darkMode ? "#56B6C2" : "#56B6C2"
 
   // Colors - Status
   readonly property color success: darkMode ? "#98C379" : "#98C379"

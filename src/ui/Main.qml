@@ -171,6 +171,27 @@ ApplicationWindow {
                 visible: !model.thumbnail
               }
 
+              // Kind chip
+              Rectangle {
+                visible: model.kind !== ""
+                anchors.bottom: parent.bottom
+                anchors.right: parent.right
+                anchors.margins: 5
+                width: kindLabel.implicitWidth + 8
+                height: 16
+                radius: Theme.radiusSmall
+                color: "#88000000"
+
+                Text {
+                  id: kindLabel
+                  anchors.centerIn: parent
+                  text: model.kind
+                  color: Theme.textKindChip
+                  font.pixelSize: Theme.bodySmall
+                  font.bold:true
+                }
+              }
+
               Row {
                 anchors.bottom: parent.bottom
                 anchors.left: parent.left
@@ -179,7 +200,7 @@ ApplicationWindow {
 
                 // Variant indicator
                 PIndicator {
-                  dotColor: Theme.secondary
+                  dotColor: Theme.purple
                   isVisible: model.hasVariants
                   tooltip: "Contains variants"
                 }
@@ -193,7 +214,7 @@ ApplicationWindow {
 
                 // Reference indicator
                 PIndicator {
-                  dotColor: Theme.primary
+                  dotColor: Theme.cyan
                   isVisible: model.hasReferences
                   tooltip: "Contains references"
                 }

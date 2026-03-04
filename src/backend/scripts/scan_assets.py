@@ -76,15 +76,44 @@ def collect_layer_deps(layer_path: str) -> set[str]:
 
     return deps
 
+
+def check_prim_spec(spec: Sdf.PrimSpec) -> tuple[bool, bool, bool]:
+    has_variants = bool(spec.variantSets)
+    has_payloads = len(list(spec.payloadList.explicitItems)) > 0 or \
+                    len(list(spec.payloadList.addedItems)) > 0 or \
+                    len(list(spec.payloadList.prependedItems)) > 0 or \
+                    len(list(spec.payloadList.appendedItems)) > 0
+    has_references = len(list(spec.referenceList.explicitItems)) > 0 or \
+                    len(list(spec.referenceList.addedItems)) > 0 or \
+                    len(list(spec.referenceList.prependedItems)) > 0 or \
+                    len(list(spec.referenceList.appendedItems)) > 0
+
+    for child in spec.nameChildren:
+        v, p, r = check_prim_spec(child)
+        has_variants = has_variants or v
+        has_payloads = has_payloads or p
+        has_references = has_references or r
+
+    return has_variants, has_payloads, has_references
+
+
 def collect_asset_data(layer_path: str) -> dict[str, str]:
     layer = Sdf.Layer.FindOrOpen(layer_path) # pyright: ignore
+    if not layer:
+        return {}
+
     defaultPrimPath = layer.GetDefaultPrimAsPath()
     prim = layer.GetPrimAtPath(defaultPrimPath)
+
+    has_variants, has_payloads, has_references = check_prim_spec(prim)
 
     recordData = {
         'defaultPrimPath': defaultPrimPath,
         'kind': prim.kind,
-        'displayName': prim.name
+        'displayName': prim.name,
+        'hasVariants': has_variants,
+        'hasPayloads': has_payloads,
+        'hasReferences': has_references
     }
 
     return recordData
@@ -136,7 +165,9 @@ def main():
         rec["defaultPrimPath"] = str(tmp.get("defaultPrimPath"))
         rec["kind"] = str(tmp.get("kind"))
         rec["displayName"] = str(tmp.get("displayName"))
-        rec["hasReferences"] = len(list(internal_layers)) > 0
+        rec["hasVariants"] = bool(tmp.get("hasVariants"))
+        rec["hasPayloads"] = bool(tmp.get("hasPayloads"))
+        rec["hasReferences"] = bool(tmp.get("hasReferences"))
 
     print(json.dumps(records))
 

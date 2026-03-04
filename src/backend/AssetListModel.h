@@ -39,6 +39,7 @@ public:
     PathRole,
     TypeRole,
     ThumbnailRole,
+    KindRole,
     HasVariantsRole,
     HasPayloadsRole,
     HasReferencesRole
