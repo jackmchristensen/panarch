@@ -12,7 +12,7 @@ Item {
     parent: root.target
     enabled: root.visible && root.tooltip !== ""
     onHoveredChanged: {
-      if (hover) {
+      if (hovered) {
         tooltipTimer.start()
       } else {
         tooltipTimer.stop()
