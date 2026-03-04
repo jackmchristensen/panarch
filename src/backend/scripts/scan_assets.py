@@ -59,11 +59,6 @@ def collect_layer_deps(layer_path: str) -> set[str]:
     if not layer:
         return deps
 
-    # layer.GetPrimAtPath(layer.GetDefaultPrimAsPath()).kind) -> AssetRecord.kind
-    # layer.defaultPrimAsPath -> AssetRecord.defaultPrimPath
-    # layer.timeCodesPerSecond -> AssetDetails.timeCodesPerSecond
-    # layer.framesPerSecond -> AssetDetails.framesPerSecond
-
     for sub in layer.subLayerPaths:
         r = resolve_against_layer(layer, sub)
         if r:
