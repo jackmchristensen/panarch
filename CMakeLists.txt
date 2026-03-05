@@ -8,6 +8,8 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
 
+find_package(X11 REQUIRED)
+find_package(pxr REQUIRED)
 find_package(Qt6 REQUIRED COMPONENTS Quick)
 
 qt_standard_project_setup()
@@ -38,5 +40,11 @@ add_custom_command(TARGET Panarch POST_BUILD
           $<TARGET_FILE_DIR:Panarch>/scripts/scan_assets.py
 )
 
-target_include_directories(Panarch PRIVATE src)
-target_link_libraries(Panarch PRIVATE Qt6::Quick)
+target_include_directories(Panarch PRIVATE 
+  src
+  ${PXR_INCLUDE_DIRS}
+)
+target_link_libraries(Panarch PRIVATE 
+  Qt6::Quick
+  usd_m
+)
