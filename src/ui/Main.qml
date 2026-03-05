@@ -135,7 +135,7 @@ ApplicationWindow {
               width: 120
               height: 120
               color: model.path === backend.selectedPath ? Theme.selection
-              : mouseFlag.containsMouse ? Theme.hover
+              : mouseFlag.hovered ? Theme.hover
               : Theme.card
               border.color: model.path === backend.selectedPath ? Theme.primary : Theme.border
               border.width: model.path === backend.selectedPath ? Theme.borderWidthThick : Theme.borderWidth
@@ -239,7 +239,7 @@ ApplicationWindow {
 
           HoverHandler {
             id: mouseFlag
-            cursorShape: Qt.PointingHandCursor
+            // cursorShape: Qt.PointingHandCursor
           }
 
           // MouseArea {
@@ -513,6 +513,7 @@ ApplicationWindow {
                 
                 PButton {
                   text: "Open"
+                  onClicked: backend.openSelected()
                   // TODO implement backend.openSelected()
                 }
               }

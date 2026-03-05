@@ -1,6 +1,7 @@
 #include <QSettings>
 #include <QClipboard>
 #include <QGuiApplication>
+#include <QProcess>
 #include <qcontainerfwd.h>
 #include <qfloat16.h>
 #include <qlogging.h>
@@ -95,6 +96,13 @@ void Backend::copySelectedPath() {
   
   QClipboard* clipboard = QGuiApplication::clipboard();
   clipboard->setText(rec->entryPath);
+}
+
+void Backend::openSelected() {
+  QProcess* proc = new QProcess(this);
+  QStringList args;
+  args << m_assets.at(m_selectedIndex)->entryPath;
+  proc->start("usdview", args);
 }
 
 QString Backend::m_formatSize(quint64 size, SizeBase base) const {
