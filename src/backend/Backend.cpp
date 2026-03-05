@@ -2,6 +2,9 @@
 #include <QClipboard>
 #include <QGuiApplication>
 #include <QProcess>
+#include <QDesktopServices>
+#include <QDir>
+#include <QFileInfo>
 #include <qcontainerfwd.h>
 #include <qfloat16.h>
 #include <qlogging.h>
@@ -103,6 +106,12 @@ void Backend::openSelected() {
   QStringList args;
   args << m_assets.at(m_selectedIndex)->entryPath;
   proc->start("usdview", args);
+}
+
+void Backend::revealSelected() {
+  QFileInfo fileInfo(m_assets.at(m_selectedIndex)->entryPath);
+  QString url = "file:///" + fileInfo.dir().absolutePath();
+  QDesktopServices::openUrl(QUrl(url));
 }
 
 QString Backend::m_formatSize(quint64 size, SizeBase base) const {

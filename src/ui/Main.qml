@@ -508,6 +508,7 @@ ApplicationWindow {
 
                 PButton {
                   text: "Reveal"
+                  onClicked: backend.revealSelected()
                   // TODO implement backend.revealSelectedInFolder()
                 }
                 

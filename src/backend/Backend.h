@@ -47,6 +47,7 @@ public:
   Q_INVOKABLE void removeLibraryRoot(const QString& path);
   Q_INVOKABLE void copySelectedPath();
   Q_INVOKABLE void openSelected();
+  Q_INVOKABLE void revealSelected();
 
   void saveLibraryRoots(const QStringList& roots);
   QStringList loadLibraryRoots();
