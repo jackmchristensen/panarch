@@ -6,7 +6,7 @@
 #include <QShortcut>
 #include <QKeySequence>
 #include <QObject>
-#include <qkeysequence.h>
+#include <QKeySequence>
 #include "backend/Backend.h"
 
 int main(int argc, char *argv[]) 

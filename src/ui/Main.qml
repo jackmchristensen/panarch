@@ -115,150 +115,191 @@ ApplicationWindow {
         border.width: Theme.borderWidth
       }
 
-      // ──── AssetGrid ────────────────────────────────────────────
-      GridView {
-        id: assetGrid
+      Item {
         anchors.fill: parent
-        anchors.margins: Theme.s3
-        cellWidth: 140
-        cellHeight: 180
-        model: backend.assets
 
-        displaced: Transition {
-          NumberAnimation { properties: "x,y"; duration: 1000}
+        TextField {
+          id: filter
+
+          focus: false
+          activeFocusOnPress: true
+          Keys.onEscapePressed: focus = false
+
+          anchors.horizontalCenter: parent.horizontalCenter
+          anchors.top: parent.top
+          anchors.topMargin: 10
+          width: parent.width * 0.33
+          placeholderText: qsTr("Filter...")
+
+          leftInset: -8
+          rightInset: -8
+
+          color: Theme.text
+          placeholderTextColor: Theme.textSecondary
+
+          background: Rectangle {
+            implicitWidth: 200
+            implicitHeight: 32
+            radius: implicitHeight / 2
+            color: Theme.panel
+            border.color: filter.activeFocus ? Theme.primary : Theme.border
+            border.width: Theme.borderWidth
+
+            layer.enabled: true
+          }
+
         }
 
-        delegate: Item {
-          width: assetGrid.cellWidth
-          height: assetGrid.cellHeight
+        // ──── AssetGrid ────────────────────────────────────────────
+        GridView {
+          id: assetGrid
+          anchors.top: filter.bottom
+          anchors.topMargin: 0
+          anchors.left: parent.left
+          anchors.right: parent.right
+          anchors.bottom: parent.bottom
 
-          Column {
-            anchors.centerIn: parent
-            spacing: 8
+          anchors.margins: Theme.s3
+          cellWidth: 140
+          cellHeight: 180
+          model: backend.assets
 
-            // ──── Thumbnail ────────────────────────────────────────────
-            Rectangle {
-              id: thumb
-              width: 120
-              height: 120
-              color: model.path === backend.selectedPath ? Theme.selection
-              : mouseFlag.hovered ? Theme.hover
-              : Theme.card
-              border.color: model.path === backend.selectedPath ? Theme.primary : Theme.border
-              border.width: model.path === backend.selectedPath ? Theme.borderWidthThick : Theme.borderWidth
-              radius: Theme.radius
+          displaced: Transition {
+            NumberAnimation { properties: "x,y"; duration: 1000}
+          }
 
-              Behavior on color { ColorAnimation { duration: 120 } }
-              Behavior on scale { NumberAnimation { duration: 120 } }
+          delegate: Item {
+            width: assetGrid.cellWidth
+            height: assetGrid.cellHeight
 
-              Image {
-                id: imageThumb
-                anchors.fill: parent
-                anchors.margins: 4
-                source: model.thumbnail ? "file://" + model.thumbnail : ""
-                fillMode: Image.PreserveAspectFit
+            Column {
+              anchors.centerIn: parent
+              spacing: 8
 
-                layer.enabled: true
-                layer.effect: OpacityMask {
-                  id: opacityMask
-                  maskSource: Rectangle {
-                    id: maskedRect
-                    width: imageThumb.width
-                    height: imageThumb.height
-                    radius: Theme.radiusSmall
+              // ──── Thumbnail ────────────────────────────────────────────
+              Rectangle {
+                id: thumb
+                width: 120
+                height: 120
+                color: model.path === backend.selectedPath ? Theme.selection
+                : mouseFlag.hovered ? Theme.hover
+                : Theme.card
+                border.color: model.path === backend.selectedPath ? Theme.primary : Theme.border
+                border.width: model.path === backend.selectedPath ? Theme.borderWidthThick : Theme.borderWidth
+                radius: Theme.radius
+
+                Behavior on color { ColorAnimation { duration: 120 } }
+                Behavior on scale { NumberAnimation { duration: 120 } }
+
+                Image {
+                  id: imageThumb
+                  anchors.fill: parent
+                  anchors.margins: 4
+                  source: model.thumbnail ? "file://" + model.thumbnail : ""
+                  fillMode: Image.PreserveAspectFit
+
+                  layer.enabled: true
+                  layer.effect: OpacityMask {
+                    id: opacityMask
+                    maskSource: Rectangle {
+                      id: maskedRect
+                      width: imageThumb.width
+                      height: imageThumb.height
+                      radius: Theme.radiusSmall
+                    }
+                  }
+                }
+
+                // Fallback icon when no thumbnail
+                Text {
+                  anchors.centerIn: parent
+                  text: "📦"
+                  font.pixelSize: 48
+                  visible: !model.thumbnail
+                }
+
+                // Kind chip
+                Rectangle {
+                  visible: model.kind !== ""
+                  anchors.bottom: parent.bottom
+                  anchors.right: parent.right
+                  anchors.margins: 5
+                  width: kindLabel.implicitWidth + 8
+                  height: 16
+                  radius: Theme.radiusSmall
+                  color: "#88000000"
+
+                  Text {
+                    id: kindLabel
+                    anchors.centerIn: parent
+                    text: model.kind
+                    color: Theme.textKindChip
+                    font.pixelSize: Theme.bodySmall
+                    font.bold:true
+                  }
+                }
+
+                Row {
+                  anchors.bottom: parent.bottom
+                  anchors.left: parent.left
+                  anchors.margins: 8
+                  spacing: 3
+
+                  // Variant indicator
+                  PIndicator {
+                    dotColor: Theme.purple
+                    isVisible: model.hasVariants
+                    tooltip: "Has variants"
+                  }
+
+                  // Payload indicator
+                  PIndicator {
+                    dotColor: Theme.yellow
+                    isVisible: model.hasPayloads
+                    tooltip: "Has payloads"
+                  }
+
+                  // Reference indicator
+                  PIndicator {
+                    dotColor: Theme.cyan
+                    isVisible: model.hasReferences
+                    tooltip: "Has references"
                   }
                 }
               }
 
-              // Fallback icon when no thumbnail
+              // Asset name
               Text {
-                anchors.centerIn: parent
-                text: "📦"
-                font.pixelSize: 48
-                visible: !model.thumbnail
-              }
-
-              // Kind chip
-              Rectangle {
-                visible: model.kind !== ""
-                anchors.bottom: parent.bottom
-                anchors.right: parent.right
-                anchors.margins: 5
-                width: kindLabel.implicitWidth + 8
-                height: 16
-                radius: Theme.radiusSmall
-                color: "#88000000"
-
-                Text {
-                  id: kindLabel
-                  anchors.centerIn: parent
-                  text: model.kind
-                  color: Theme.textKindChip
-                  font.pixelSize: Theme.bodySmall
-                  font.bold:true
-                }
-              }
-
-              Row {
-                anchors.bottom: parent.bottom
-                anchors.left: parent.left
-                anchors.margins: 8
-                spacing: 3
-
-                // Variant indicator
-                PIndicator {
-                  dotColor: Theme.purple
-                  isVisible: model.hasVariants
-                  tooltip: "Has variants"
-                }
-
-                // Payload indicator
-                PIndicator {
-                  dotColor: Theme.yellow
-                  isVisible: model.hasPayloads
-                  tooltip: "Has payloads"
-                }
-
-                // Reference indicator
-                PIndicator {
-                  dotColor: Theme.cyan
-                  isVisible: model.hasReferences
-                  tooltip: "Has references"
-                }
+                width: 120
+                text: model.name
+                color: Theme.text
+                font.pixelSize: Theme.body
+                elide: Text.ElideMiddle
+                horizontalAlignment: Text.AlignHCenter
               }
             }
 
-            // Asset name
-            Text {
-              width: 120
-              text: model.name
-              color: Theme.text
-              font.pixelSize: Theme.body
-              elide: Text.ElideMiddle
-              horizontalAlignment: Text.AlignHCenter
+            TapHandler {
+              onTapped: backend.selectIndex(index)
+              onPressedChanged: thumb.scale = pressed ? 0.97 : 1.0
             }
-          }
 
-          TapHandler {
-            onTapped: backend.selectIndex(index)
-            onPressedChanged: thumb.scale = pressed ? 0.97 : 1.0
-          }
+            HoverHandler {
+              id: mouseFlag
+              // cursorShape: Qt.PointingHandCursor
+            }
 
-          HoverHandler {
-            id: mouseFlag
-            // cursorShape: Qt.PointingHandCursor
+            // MouseArea {
+            //   id: mouseFlag
+            //   anchors.fill: parent
+            //   onClicked: backend.selectIndex(index)
+            //   hoverEnabled: true
+            //   cursorShape: Qt.PointingHandCursor
+            //
+            //   onPressed: thumb.scale = 0.99
+            //   onReleased: thumb.scale = 1.00
+            // }
           }
-
-          // MouseArea {
-          //   id: mouseFlag
-          //   anchors.fill: parent
-          //   onClicked: backend.selectIndex(index)
-          //   hoverEnabled: true
-          //   cursorShape: Qt.PointingHandCursor
-          //
-          //   onPressed: thumb.scale = 0.99
-          //   onReleased: thumb.scale = 1.00
-          // }
         }
       }
     }
