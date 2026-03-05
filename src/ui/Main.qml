@@ -19,6 +19,7 @@ ApplicationWindow {
   MouseArea {
     anchors.fill: parent
     onClicked: filter.focus = false
+    z: -1
   }
 
   FolderDialog {
@@ -88,6 +89,7 @@ ApplicationWindow {
       MouseArea {
         anchors.fill: parent
         onClicked: filter.focus = false
+        z: -1
       }
     }
   }
@@ -128,6 +130,7 @@ ApplicationWindow {
       MouseArea {
         anchors.fill: parent
         onClicked: filter.focus = false
+        z: -1
       }
 
       Item {
@@ -592,6 +595,7 @@ ApplicationWindow {
       MouseArea {
         anchors.fill: parent
         onClicked: filter.focus = false
+        z: -1
       }
     }
   }
