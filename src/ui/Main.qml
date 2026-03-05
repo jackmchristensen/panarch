@@ -16,6 +16,11 @@ ApplicationWindow {
     color: Theme.bg
   }
 
+  MouseArea {
+    anchors.fill: parent
+    onClicked: filter.focus = false
+  }
+
   FolderDialog {
     id: folderDialog
     title: "Select a Library Folder"
@@ -79,6 +84,11 @@ ApplicationWindow {
         text: "󰔎"
         onClicked: Theme.toggleTheme()
       }
+ 
+      MouseArea {
+        anchors.fill: parent
+        onClicked: filter.focus = false
+      }
     }
   }
 
@@ -113,6 +123,11 @@ ApplicationWindow {
         color: Theme.panel
         border.color: Theme.border
         border.width: Theme.borderWidth
+      }
+
+      MouseArea {
+        anchors.fill: parent
+        onClicked: filter.focus = false
       }
 
       Item {
@@ -562,7 +577,7 @@ ApplicationWindow {
                   onClicked: backend.revealSelected()
                   // TODO implement backend.revealSelectedInFolder()
                 }
-                
+ 
                 PButton {
                   text: "Open"
                   onClicked: backend.openSelected()
@@ -572,6 +587,11 @@ ApplicationWindow {
             }
           }
         }
+      }
+
+      MouseArea {
+        anchors.fill: parent
+        onClicked: filter.focus = false
       }
     }
   }
