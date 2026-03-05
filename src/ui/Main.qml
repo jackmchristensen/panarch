@@ -188,8 +188,13 @@ ApplicationWindow {
           }
 
           delegate: Item {
+            id: delegateRoot
             width: assetGrid.cellWidth
             height: assetGrid.cellHeight
+            
+            Drag.active: dragHandler.active
+            Drag.dragType: Drag.Automatic
+            Drag.mimeData: ({ "text/uri-list": "file://" + model.path })
 
             Column {
               anchors.centerIn: parent
@@ -287,6 +292,7 @@ ApplicationWindow {
                 }
               }
 
+
               // Asset name
               Text {
                 width: 120
@@ -298,16 +304,32 @@ ApplicationWindow {
               }
             }
 
+            DragHandler {
+              id: dragHandler
+              target: null
+              dragThreshold: 12
+            }
+
             TapHandler {
               onTapped: {
                 backend.selectIndex(index)
                 filter.focus = false
               }
-              onPressedChanged: thumb.scale = pressed ? 0.97 : 1.0
+              onPressedChanged: {
+                thumb.scale = pressed ? 0.97 : 1.0
+                if (!pressed) Drag.drop()
+              }
             }
 
             HoverHandler {
               id: mouseFlag
+              onHoveredChanged: {
+                if (hovered) {
+                  delegateRoot.grabToImage(function(result) {
+                    delegateRoot.Drag.imageSource = result.url
+                  }, Qt.size(70, 90))
+                }
+              }
               // cursorShape: Qt.PointingHandCursor
             }
 
