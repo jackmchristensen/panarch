@@ -145,7 +145,7 @@ ApplicationWindow {
 
           anchors.horizontalCenter: parent.horizontalCenter
           anchors.top: parent.top
-          anchors.topMargin: 10
+          anchors.topMargin: 15
           width: parent.width * 0.33
           placeholderText: qsTr("Filter...")
 
@@ -171,8 +171,9 @@ ApplicationWindow {
         // ──── AssetGrid ────────────────────────────────────────────
         GridView {
           id: assetGrid
+          interactive: false
           anchors.top: filter.bottom
-          anchors.topMargin: 0
+          anchors.topMargin: 10
           anchors.left: parent.left
           anchors.right: parent.right
           anchors.bottom: parent.bottom
