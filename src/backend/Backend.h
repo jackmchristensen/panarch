@@ -48,6 +48,7 @@ public:
   Q_INVOKABLE void copySelectedPath();
   Q_INVOKABLE void openSelected();
   Q_INVOKABLE void revealSelected();
+  Q_INVOKABLE void quitApp();
 
   void saveLibraryRoots(const QStringList& roots);
   QStringList loadLibraryRoots();
@@ -57,6 +58,7 @@ public:
 signals:
   void selectedChanged();
   void libraryRootsChanged();
+  void openLibraryDialogRequested();
 
 private:
   AssetListModel m_assets;

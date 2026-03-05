@@ -19,7 +19,14 @@ ApplicationWindow {
   FolderDialog {
     id: folderDialog
     title: "Select a Library Folder"
-    onAccepted: backend.addLibrary(selectedFolder)
+    onAccepted: backend.addLibraryRoot(selectedFolder.toString().replace("file://", ""))
+  }
+
+  Connections {
+    target: backend
+    function onOpenLibraryDialogRequested() {
+      folderDialog.open()
+    }
   }
 
   header: ToolBar {
@@ -38,7 +45,7 @@ ApplicationWindow {
         items: [
           { text: "Add Library...", shortcut: "Ctrl+O", action: () => folderDialog.open() },
           { separator: true },
-          { text: "Quit", shortcut: "Ctrl+Q", action: () => console.log("Quit") }
+          { text: "Quit", shortcut: "Ctrl+Q", action: () => backend.quitApp() }
         ]
       }
 

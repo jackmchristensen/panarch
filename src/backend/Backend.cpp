@@ -114,6 +114,10 @@ void Backend::revealSelected() {
   QDesktopServices::openUrl(QUrl(url));
 }
 
+void Backend::quitApp() {
+  QCoreApplication::quit();
+}
+
 QString Backend::m_formatSize(quint64 size, SizeBase base) const {
   const int divisor = base == SizeBase::BINARY ? 1024 : 1000;
   if (size < divisor) return QString::number(size) + " B";
