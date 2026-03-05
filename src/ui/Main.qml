@@ -221,6 +221,8 @@ ApplicationWindow {
                   anchors.fill: parent
                   anchors.margins: 4
                   source: model.thumbnail ? "file://" + model.thumbnail : ""
+                  sourceSize.width: 120
+                  sourceSize.height: 120
                   fillMode: Image.PreserveAspectFit
 
                   layer.enabled: true
