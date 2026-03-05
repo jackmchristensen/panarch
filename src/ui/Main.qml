@@ -39,6 +39,7 @@ ApplicationWindow {
     background: Rectangle { color: Theme.bg }
 
     RowLayout {
+      id: toolBarLayout
       anchors.fill: parent
       anchors.topMargin: 3
       spacing: 0
@@ -75,7 +76,12 @@ ApplicationWindow {
         ]
       }
 
-      Item { Layout.fillWidth: true }
+      MouseArea {
+        Layout.fillWidth: true
+        Layout.fillHeight: true
+        onClicked: filter.focus = false
+        z: -1
+      }
 
       PButton {
         id: toggle
@@ -86,11 +92,6 @@ ApplicationWindow {
         onClicked: Theme.toggleTheme()
       }
  
-      MouseArea {
-        anchors.fill: parent
-        onClicked: filter.focus = false
-        z: -1
-      }
     }
   }
 
