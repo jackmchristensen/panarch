@@ -280,7 +280,10 @@ ApplicationWindow {
             }
 
             TapHandler {
-              onTapped: backend.selectIndex(index)
+              onTapped: {
+                backend.selectIndex(index)
+                filter.focus = false
+              }
               onPressedChanged: thumb.scale = pressed ? 0.97 : 1.0
             }
 
