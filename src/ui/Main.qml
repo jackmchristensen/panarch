@@ -622,7 +622,7 @@ ApplicationWindow {
                       radiusTR: 0
                       radiusBR: 0
                       radiusBL: 0
-                      onClicked: backend.openSelected()
+                      onClicked: backend.openSelectedUsdview()
                     }
 
                     Rectangle {
@@ -640,10 +640,10 @@ ApplicationWindow {
                       bg: Theme.card
                       xPos: -openButton.implicitWidth - Theme.borderWidth - 0.75
                       items: [
-                        { text: "Open in usdview", action: () => console.debug("usdview") },
-                        { text: "Open in Houdini", action: () => console.debug("Houdini") },
-                        { text: "Open in Maya", action: () => console.debug("Maya") },
-                        { text: "Open in Blender", action: () => console.debug("Blender") },
+                        { text: "Open in usdview", action: () => backend.openSelectedUsdview() },
+                        // { text: "Open in Houdini", action: () => console.debug("Houdini") },
+                        // { text: "Open in Maya", action: () => console.debug("Maya") },
+                        { text: "Open in Blender", action: () => backend.openSelectedBlender() },
                       ]
                     }
                   }

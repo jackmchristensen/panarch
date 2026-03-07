@@ -46,7 +46,8 @@ public:
   Q_INVOKABLE void selectIndex(int index);
   Q_INVOKABLE void removeLibraryRoot(const QString& path);
   Q_INVOKABLE void copySelectedPath();
-  Q_INVOKABLE void openSelected();
+  Q_INVOKABLE void openSelectedUsdview();
+  Q_INVOKABLE void openSelectedBlender();
   Q_INVOKABLE void revealSelected();
   Q_INVOKABLE void quitApp();
 
