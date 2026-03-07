@@ -621,7 +621,7 @@ ApplicationWindow {
                       borderWidthBtn: 0
                       radiusTR: 0
                       radiusBR: 0
-                      radiusBL: 0
+                      radiusBL: menuBtn.popupVisible ? 0 : Theme.radius
                       onClicked: backend.openSelectedUsdview()
                     }
 
@@ -636,7 +636,7 @@ ApplicationWindow {
                       label: "▾"
                       radiusTL: 0
                       radiusBL: 0
-                      popupRadiusTL: menuBtn.popupVisible ? 0 : Theme.radius
+                      popupRadiusTL: 0
                       bg: Theme.card
                       xPos: -openButton.implicitWidth - Theme.borderWidth - 0.75
                       items: [
