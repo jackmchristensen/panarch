@@ -9,6 +9,12 @@ Button {
   property int borderWidthBtn: Theme.borderWidth
   property bool usePointer: true
 
+  property int radius: Theme.radius
+  property int radiusTL: radius
+  property int radiusTR: radius
+  property int radiusBL: radius
+  property int radiusBR: radius
+
   hoverEnabled: true
 
   contentItem: Text {
@@ -22,7 +28,11 @@ Button {
   }
 
   background: Rectangle {
-    radius: Theme.radius
+    topLeftRadius: root.radiusTL
+    topRightRadius: root.radiusTR
+    bottomLeftRadius: root.radiusBL
+    bottomRightRadius: root.radiusBR
+
     border.color: Theme.border
     border.width: root.borderWidthBtn
     color: !root.enabled ? Theme.card

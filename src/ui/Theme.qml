@@ -13,7 +13,7 @@ QtObject {
   readonly property int s4: 18
 
   // Radius / Borders
-  readonly property int radius: 4
+  readonly property int radius: 8
   readonly property int radiusSmall: radius - 2
   readonly property int radiusLarge: radius + 2
   readonly property int borderWidth: 1
@@ -26,8 +26,8 @@ QtObject {
   readonly property int bodySmall: 11
 
   // Colors - Background
-  readonly property color bg: darkMode ? "#282C34" : "#FAFAFA"
-  readonly property color panel: darkMode ? "#21252B" : "#F0F0F0"
+  readonly property color bg: darkMode ? "#282C34" : "#F0F0F0"
+  readonly property color panel: darkMode ? "#21252B" : "#FAFAFA"
   readonly property color card: darkMode ? "#2C313C" : "#FFFFFF"
   readonly property color inputBg: darkMode ? "#1E2227" : "#E8E8E8"
   readonly property color bgDisabled: darkMode ? "#3A3F4B" : "#DDDDDD"

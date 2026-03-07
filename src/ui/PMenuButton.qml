@@ -9,17 +9,41 @@ Item {
   property string label: "Menu"
   property var items: []
   property color accentColor: Theme.primary
+  property color bg: Theme.bg
+  property bool border: false
+  property bool popupVisible: popup.visible
 
-  implicitWidth: menuBtn.implicitWidth
-  implicitHeight: menuBtn.implicitHeight
+  property int radius: Theme.radius
+  property int radiusTL: radius
+  property int radiusTR: radius
+  property int radiusBL: radius
+  property int radiusBR: radius
+
+  property int popupRadiusTL: radius
+  property int popupRadiusTR: radius
+  property int popupRadiusBL: radius
+  property int popupRadiusBR: radius
+  
+  property int btnWidth: menuBtn.implicitWidth
+  property int btnHeight: menuBtn.implicitHeight
+
+  property int xPos: 0
+ 
+  implicitWidth: btnWidth
+  implicitHeight: btnHeight
 
   PButton {
     id: menuBtn
     anchors.centerIn: parent
     text: root.label
     usePointer: false
-    colorBtn: Theme.bg
-    borderWidthBtn: 0
+    colorBtn: root.bg
+    borderWidthBtn: root.border ? Theme.borderWidth : 0
+
+    radiusTL: root.radiusTL
+    radiusTR: root.radiusTR
+    radiusBL: root.radiusBL
+    radiusBR: root.radiusBR
 
     onClicked: popup.visible ? popup.close() : popup.open()
   }
@@ -28,7 +52,7 @@ Item {
     id: popup
     parent: menuBtn
     y: root.height
-    x: 0
+    x: root.xPos
     width: 200
     padding: 4
     closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutsideParent
@@ -37,7 +61,11 @@ Item {
       color: Theme.card
       border.color: Theme.border
       border.width: Theme.borderWidth
-      radius: Theme.radius
+
+      topLeftRadius: root.popupRadiusTL
+      topRightRadius: root.popupRadiusTR
+      bottomLeftRadius: root.popupRadiusBL
+      bottomRightRadius: root.popupRadiusBR
     }
 
     contentItem: Column {

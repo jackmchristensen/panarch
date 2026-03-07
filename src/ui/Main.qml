@@ -164,7 +164,7 @@ ApplicationWindow {
             border.color: filter.activeFocus ? Theme.primary : Theme.border
             border.width: Theme.borderWidth
 
-            layer.enabled: true
+            // layer.enabled: true
           }
 
         }
@@ -269,7 +269,8 @@ ApplicationWindow {
                 Row {
                   anchors.bottom: parent.bottom
                   anchors.left: parent.left
-                  anchors.margins: 8
+                  anchors.bottomMargin: 10
+                  anchors.leftMargin: 8
                   spacing: 3
 
                   // Variant indicator
@@ -604,13 +605,60 @@ ApplicationWindow {
                 PButton {
                   text: "Reveal"
                   onClicked: backend.revealSelected()
-                  // TODO implement backend.revealSelectedInFolder()
                 }
+
+                Item {
+                  implicitWidth: splitRow.implicitWidth
+                  implicitHeight: splitRow.implicitHeight
+
+                  Row {
+                    id: splitRow
+                    spacing: 0
  
-                PButton {
-                  text: "Open"
-                  onClicked: backend.openSelected()
-                  // TODO implement backend.openSelected()
+                    PButton {
+                      id: openButton
+                      text: "Open"
+                      borderWidthBtn: 0
+                      radiusTR: 0
+                      radiusBR: 0
+                      radiusBL: 0
+                      onClicked: backend.openSelected()
+                    }
+
+                    Rectangle {
+                      width: Theme.borderWidth
+                      height: parent.height
+                      color: Theme.border
+                    }
+
+                    PMenuButton {
+                      id: menuBtn
+                      label: "▾"
+                      radiusTL: 0
+                      radiusBL: 0
+                      popupRadiusTL: menuBtn.popupVisible ? 0 : Theme.radius
+                      bg: Theme.card
+                      xPos: -openButton.implicitWidth - Theme.borderWidth - 0.75
+                      items: [
+                        { text: "Open in usdview", action: () => console.debug("usdview") },
+                        { text: "Open in Houdini", action: () => console.debug("Houdini") },
+                        { text: "Open in Maya", action: () => console.debug("Maya") },
+                        { text: "Open in Blender", action: () => console.debug("Blender") },
+                      ]
+                    }
+                  }
+
+                  Rectangle {
+                    anchors.fill: parent
+                    topLeftRadius: Theme.radius
+                    topRightRadius: Theme.radius
+                    bottomLeftRadius: menuBtn.popupVisible ? 0 : Theme.radius
+                    bottomRightRadius: Theme.radius
+                    border.color: Theme.border
+                    border.width: Theme.borderWidth
+                    color: "transparent"
+                    z: 1
+                  }
                 }
               }
             }
