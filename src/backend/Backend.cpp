@@ -5,9 +5,9 @@
 #include <QDesktopServices>
 #include <QDir>
 #include <QFileInfo>
-#include <qcontainerfwd.h>
-#include <qfloat16.h>
-#include <qlogging.h>
+#include <QtConcurrent/QtConcurrent>
+#include <QFutureWatcher>
+
 #include "backend/Backend.h"
 #include "backend/AssetIndex.h"
 
@@ -19,17 +19,27 @@ void Backend::initialize() {
 }
 
 void Backend::rescan() {
-  const QStringList roots = loadLibraryRoots();
+  auto* watcher = new QFutureWatcher<QVector<AssetRecord>>(this);
 
-  QVector<AssetRecord> all;
-  all.reserve(1024);
+  connect(watcher, &QFutureWatcher<QVector<AssetRecord>>::finished, this, [this, watcher]() {
+    QVector<AssetRecord> result = watcher->result();
+    m_assets.setAssets(result);
+    watcher->deleteLater();
+  });
 
-  for (const QString& root : roots) {
-    auto scanned = AssetIndex::scan(root);
-    all += scanned;
-  }
+  auto future = QtConcurrent::run([this]() {
+    const QStringList roots = loadLibraryRoots();
+    QVector<AssetRecord> all;
+    all.reserve(1024);
 
-  m_assets.setAssets(std::move(all));
+    for (const QString& root: roots) {
+      auto scanned = AssetIndex::scan(root);
+      all += scanned;
+    }
+    return all;
+  });
+
+  watcher->setFuture(future);
 }
 
 void Backend::addLibraryRoot(const QString& rootDir) {

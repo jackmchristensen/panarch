@@ -46,5 +46,6 @@ target_include_directories(Panarch PRIVATE
 )
 target_link_libraries(Panarch PRIVATE 
   Qt6::Quick
+  Qt6::Concurrent
   usd_m
 )
