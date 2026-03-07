@@ -115,7 +115,7 @@ void Backend::openSelected() {
   QProcess* proc = new QProcess(this);
   QStringList args;
   args << m_assets.at(m_selectedIndex)->entryPath;
-  proc->start("usdview", args);
+  proc->startDetached("usdview", args);
 }
 
 void Backend::revealSelected() {
