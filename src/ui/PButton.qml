@@ -6,6 +6,8 @@ Button {
   id: root
 
   property color colorBtn: Theme.card
+  property int paddingBtn: 10
+  property int textSize: 13
   property int borderWidthBtn: Theme.borderWidth
   property bool usePointer: true
 
@@ -15,12 +17,13 @@ Button {
   property int radiusBL: radius
   property int radiusBR: radius
 
+  padding: paddingBtn
   hoverEnabled: true
 
   contentItem: Text {
     text: root.text
     color: root.enabled ? Theme.text : Theme.textDisabled
-    font.pixelSize: 13
+    font.pixelSize: root.textSize
     font.weight: Font.DemiBold
     elide: Text.ElideRight
     horizontalAlignment: Text.AlignHCenter
@@ -50,6 +53,4 @@ Button {
   HoverHandler {
     cursorShape: root.usePointer ? Qt.PointingHandCursor : Qt.ArrowCursor
   }
-
-  padding: 10
 }

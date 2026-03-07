@@ -36,12 +36,23 @@ ApplicationWindow {
   }
 
   header: ToolBar {
-    background: Rectangle { color: Theme.bg }
+    implicitHeight: toolBarLayout.implicitHeight + Theme.s2
+
+    background: Rectangle {
+      color: Theme.bg
+
+      Rectangle {
+        anchors.bottom: parent.bottom
+        anchors.left: parent.left
+        anchors.right: parent.right
+        height: Theme.borderWidth
+        color: Theme.borderSubtle
+      }
+    }
 
     RowLayout {
       id: toolBarLayout
       anchors.fill: parent
-      anchors.topMargin: 3
       spacing: 0
 
       PMenuButton {
@@ -57,7 +68,7 @@ ApplicationWindow {
       }
 
       PMenuButton {
-        Layout.leftMargin: 5
+        Layout.leftMargin: 0
         Layout.alignment: Qt.AlignVCenter
 
         label: "Edit"
@@ -67,7 +78,7 @@ ApplicationWindow {
       }
  
       PMenuButton {
-        Layout.leftMargin: 5
+        Layout.leftMargin: 0
         Layout.alignment: Qt.AlignVCenter
 
         label: "Help"
@@ -88,6 +99,9 @@ ApplicationWindow {
         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
         Layout.rightMargin: 5
         Layout.minimumWidth: toggle.implicitHeight
+        paddingBtn: 5
+        textSize: Theme.bodySmall
+        radius: Theme.radiusSmall
         text: "󰔎"
         onClicked: Theme.toggleTheme()
       }
@@ -147,7 +161,7 @@ ApplicationWindow {
           anchors.horizontalCenter: parent.horizontalCenter
           anchors.top: parent.top
           anchors.topMargin: 15
-          width: parent.width * 0.33
+          width: 280
           placeholderText: qsTr("Filter...")
 
           leftInset: -8
@@ -160,7 +174,7 @@ ApplicationWindow {
             implicitWidth: 200
             implicitHeight: 32
             radius: implicitHeight / 2
-            color: Theme.panel
+            color: Theme.inputBg
             border.color: filter.activeFocus ? Theme.primary : Theme.border
             border.width: Theme.borderWidth
 
@@ -185,14 +199,14 @@ ApplicationWindow {
           model: backend.assets
 
           displaced: Transition {
-            NumberAnimation { properties: "x,y"; duration: 1000}
+            NumberAnimation { properties: "x,y"; duration: 250}
           }
 
           delegate: Item {
             id: delegateRoot
             width: assetGrid.cellWidth
             height: assetGrid.cellHeight
-            
+ 
             Drag.active: dragHandler.active
             Drag.dragType: Drag.Automatic
             Drag.mimeData: ({ "text/uri-list": "file://" + model.path })
@@ -240,7 +254,7 @@ ApplicationWindow {
                 // Fallback icon when no thumbnail
                 Text {
                   anchors.centerIn: parent
-                  text: "📦"
+                  text: "📦️"
                   font.pixelSize: 48
                   visible: !model.thumbnail
                 }
@@ -294,8 +308,19 @@ ApplicationWindow {
                     tooltip: "Has references"
                   }
                 }
-              }
+ 
+                layer.enabled: mouseFlag.hovered || model.path === backend.selectedPath
+                layer.effect: DropShadow {
+                  transparentBorder: true
+                  horizontalOffset: 0
+                  verticalOffset: model.path === backend.selectedPath ? 0 : 3
+                  radius: 10
+                  samples: 17
+                  color: model.path === backend.selectedPath ? Theme.primary : "#50000000"
 
+                  // Behavior on color { ColorAnimation { duration: 120 } }
+                }
+              }
 
               // Asset name
               Text {
@@ -377,7 +402,7 @@ ApplicationWindow {
           clip: true
 
           Column {
-            spacing: 10
+            spacing: Theme.s2
             width: infoScroll.availableWidth
 
             // Header
@@ -392,7 +417,13 @@ ApplicationWindow {
             Column {
               visible: backend.selectedPath === ""
               width: parent.width
-              spacing: 6
+              spacing: Theme.s1
+
+              Text {
+                text: "📂"
+                font.pixelSize: 64
+                anchors.horizontalCenter: parent.horizontalCenter
+              }
 
               Text {
                 text: "No asset selected"
@@ -410,7 +441,7 @@ ApplicationWindow {
 
             // Details state
             Column {
-              spacing: 10
+              spacing: Theme.s2
               visible: backend.selectedPath !== ""
               width: parent.width
 
@@ -431,7 +462,7 @@ ApplicationWindow {
 
                 Text {
                   anchors.centerIn: parent
-                  text: "📦"
+                  text: "📦️"
                   font.pixelSize: 64
                   visible: !backend.selectedThumbnail
                 }
@@ -475,105 +506,24 @@ ApplicationWindow {
               // Info rows
               Column {
                 width: parent.width
-                spacing: 6
+                spacing: Theme.s1
 
-                // Modified
-                Row {
-                  width: parent.width
-                  spacing: 8
-
-                  Text {
-                    text: "Modified"
-                    color: Theme.textSecondary
-                    font.pixelSize: Theme.bodySmall
-                    width: 72
-                  }
-
-                  Text {
-                    text: backend.selectedMTime.length ? backend.selectedMTime : "—"
-                    color: Theme.text
-                    font.pixelSize: Theme.bodySmall
-                    wrapMode: Text.NoWrap
-                    elide: Text.ElideRight
-                    width: parent.width - 72 - 8
-                  }
-                }
-
-                // Default prim path
-                Row {
-                  width: parent.width
-                  spacing: 8
-
-                  Text {
-                    text: "Default Prim"
-                    color: Theme.textSecondary
-                    font.pixelSize: Theme.bodySmall
-                    width: 72
-                  }
-
-                  Text {
-                    text: backend.selectedDefaultPrim.length ? backend.selectedDefaultPrim : "—"
-                    color: Theme.text
-                    font.pixelSize: Theme.bodySmall
-                    wrapMode: Text.NoWrap
-                    elide: Text.ElideRight
-                    width: parent.width - 72 - 8
-                  }
-                }
-
-                // Kind
-                Row {
-                  width: parent.width
-                  spacing: 8
-
-                  Text {
-                    text: "Kind"
-                    color: Theme.textSecondary
-                    font.pixelSize: Theme.bodySmall
-                    width: 72
-                  }
-
-                  Text {
-                    text: backend.selectedKind.length ? backend.selectedKind : "—"
-                    color: Theme.text
-                    font.pixelSize: Theme.bodySmall
-                    wrapMode: Text.NoWrap
-                    elide: Text.ElideRight
-                    width: parent.width - 72 - 8
-                  }
-                }
-
-                // File size
-                Row {
-                  width: parent.width
-                  spacing: 8
-
-                  Text {
-                    text: "Size"
-                    color: Theme.textSecondary
-                    font.pixelSize: Theme.bodySmall
-                    width: 72
-                  }
-
-                  Text {
-                    text: backend.selectedSize
-                    color: Theme.text
-                    font.pixelSize: Theme.bodySmall
-                    wrapMode: Text.NoWrap
-                    elide: Text.ElideRight
-                    width: parent.width - 72 - 8
-                  }
-                }
+                PInfoRow { label: "Modified";     value: backend.selectedMTime }
+                PInfoRow { label: "Defualt Prim"; value: backend.selectedDefaultPrim }
+                PInfoRow { label: "Kind";         value: backend.selectedKind }
+                PInfoRow { label: "Size";         value: backend.selectedSize }
 
                 // Path
                 Text {
                   text: "Path"
                   color: Theme.textSecondary
                   font.pixelSize: Theme.bodySmall
+                  font.weight: Font.DemiBold
                 }
 
                 Rectangle {
-                  width: Math.min(parent.width, pathText.implicitWidth + 20)
+                  width: parent.width
+                  // width: Math.min(parent.width, pathText.implicitWidth + 20)
                   implicitHeight: pathText.implicitHeight + 20
                   radius: Theme.radiusSmall
                   color: Theme.panel
@@ -634,6 +584,9 @@ ApplicationWindow {
                     PMenuButton {
                       id: menuBtn
                       label: "▾"
+                      labelSize: 13
+                      paddingBtn: 10
+                      radius: Theme.radius
                       radiusTL: 0
                       radiusBL: 0
                       popupRadiusTL: 0

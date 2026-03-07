@@ -7,13 +7,15 @@ Item {
   id: root
 
   property string label: "Menu"
+  property int labelSize: Theme.bodySmall
+  property int paddingBtn: 5
   property var items: []
   property color accentColor: Theme.primary
   property color bg: Theme.bg
   property bool border: false
   property bool popupVisible: popup.visible
 
-  property int radius: Theme.radius
+  property int radius: Theme.radiusSmall
   property int radiusTL: radius
   property int radiusTR: radius
   property int radiusBL: radius
@@ -38,6 +40,8 @@ Item {
     text: root.label
     usePointer: false
     colorBtn: root.bg
+    paddingBtn: root.paddingBtn
+    textSize: root.labelSize
     borderWidthBtn: root.border ? Theme.borderWidth : 0
 
     radiusTL: root.radiusTL
