@@ -7,6 +7,7 @@
 #include <QFileInfo>
 #include <QtConcurrent/QtConcurrent>
 #include <QFutureWatcher>
+#include <qjsondocument.h>
 
 #include "backend/Backend.h"
 #include "backend/AssetIndex.h"
@@ -72,6 +73,9 @@ void Backend::selectIndex(int index) {
   m_selectedDefaultPrim = rec->defaultPrimPath;
   m_selectedKind = rec->kind;
   m_selectedMTime = rec->mtime;
+
+  m_details = AssetIndex::getAssetDetails(m_selectedPath);
+
   emit selectedChanged();
 }
 

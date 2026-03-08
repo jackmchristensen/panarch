@@ -67,4 +67,5 @@ struct AssetDetails {
 class AssetIndex {
 public:
   static QVector<AssetRecord> scan(const QString& rootDir);
+  static AssetDetails getAssetDetails(const QString& rootDir);
 };

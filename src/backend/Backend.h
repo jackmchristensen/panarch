@@ -3,6 +3,7 @@
 #include <QString>
 #include <qtmetamacros.h>
 #include "backend/AssetListModel.h"
+#include "backend/AssetIndex.h"
 
 enum class SizeBase { BINARY, DECIMAL };
 
@@ -63,6 +64,7 @@ signals:
 
 private:
   AssetListModel m_assets;
+  AssetDetails m_details;
   qint32 m_selectedIndex = -1;
   QString m_selectedPath;
   QString m_selectedName;

@@ -3,6 +3,11 @@
 #include "pxr/usd/sdf/payload.h"
 #include "pxr/usd/sdf/layer.h"
 #include "pxr/usd/sdf/layerUtils.h"
+#include "pxr/usd/usd/stage.h"
+#include "pxr/usd/usd/prim.h"
+#include "pxr/usd/usdGeom/metrics.h"
+#include "pxr/usd/usd/variantSets.h"
+#include "pxr/usd/usd/primRange.h"
 
 #include <backend/AssetIndex.h>
 
@@ -12,7 +17,9 @@
 #include <QJsonDocument>
 #include <QJsonArray>
 #include <QCoreApplication>
-#include <pxr/usd/sdf/types.h>
+#include <qcborarray.h>
+#include <qjsonobject.h>
+#include <qtypes.h>
 
 namespace {
 
@@ -21,6 +28,17 @@ struct ScanResult {
   QMap<QString, qint32> inbound;
   QMap<QString, std::set<std::string>> outbound;
   QMap<QString, AssetRecord> assetData;
+};
+
+struct Arcs {
+  QVector<QString> sublayers;
+  QVector<QString> payloads;
+  QVector<QString> references;
+};
+
+struct VariantSetInfo {
+  QStringList variants;
+  QString selected;
 };
 
 static bool isUsdExt(const QString& ext) {
@@ -141,7 +159,7 @@ AssetRecord collectAssetData(std::string layerPath) {
   return record;
 }
 
-static ScanResult buildInboundGraph(const QString& rootDir) {
+ScanResult buildInboundGraph(const QString& rootDir) {
   QVector<QString> usdFiles = iterateUsdFiles(rootDir);
   ScanResult result = (ScanResult) { .usdFiles = usdFiles };
 
@@ -166,6 +184,67 @@ static ScanResult buildInboundGraph(const QString& rootDir) {
       }
     }
     result.assetData.insert(QString::fromStdString(f), collectAssetData(f));
+  }
+
+  return result;
+}
+
+
+void collectPrimArcs(const pxr::SdfPrimSpecHandle& spec, QVector<QString>& payloads, QVector<QString>& references) {
+  for (const auto& item : spec->GetPayloadList().GetPrependedItems()) {
+    pxr::SdfPayload payload = item;
+    if (!payload.GetAssetPath().empty()) {
+      payloads.append(QString::fromStdString(payload.GetAssetPath()));
+    }
+  }
+
+  for (const auto& item : spec->GetReferenceList().GetPrependedItems()) {
+    pxr::SdfReference reference = item;
+    if (!reference.GetAssetPath().empty()) {
+      references.append(QString::fromStdString(reference.GetAssetPath()));
+    }
+  }
+
+  for (const auto& item : spec->GetNameChildren()) {
+    pxr::SdfPrimSpecHandle child = item;
+    collectPrimArcs(child, payloads, references);
+  }
+}
+
+Arcs collectArcs(pxr::UsdStageRefPtr stage) {
+  Arcs arc;
+
+  for (const auto& layer : stage->GetUsedLayers()) {
+    for (const auto& path : layer->GetSubLayerPaths()) {
+      arc.sublayers.append(QString::fromStdString(path));
+    }
+
+    pxr::SdfPath primPath = layer->GetDefaultPrimAsPath();
+    if (primPath.IsEmpty()) continue;
+
+    auto primSpec = layer->GetPrimAtPath(primPath);
+    if (primSpec == nullptr) continue;
+
+    collectPrimArcs(primSpec, arc.payloads, arc.references);
+  }
+
+  return arc;
+}
+
+QJsonObject getVariantSets(pxr::UsdPrim prim) {
+  QJsonObject result;
+  for (const auto& name : prim.GetVariantSets().GetNames()) {
+    auto variantSet = prim.GetVariantSets().GetVariantSet(name);
+ 
+    QJsonArray variants;
+    for (const auto& v : variantSet.GetVariantNames()) 
+      variants.append(QString::fromStdString(v));
+
+    QJsonObject variantSetObj;
+    variantSetObj["variants"] = variants;
+    variantSetObj["selected"] = QString::fromStdString(variantSet.GetVariantSelection());
+
+    result[QString::fromStdString(name)] = variantSetObj;
   }
 
   return result;
@@ -207,4 +286,32 @@ QVector<AssetRecord> AssetIndex::scan(const QString& rootDir){
   }
 
   return out;
+}
+
+AssetDetails AssetIndex::getAssetDetails(const QString& assetPath) {
+  auto stage = pxr::UsdStage::Open(assetPath.toStdString());
+  AssetDetails details;
+  if (stage == nullptr) {
+    return details;
+  }
+
+  pxr::UsdPrim prim = stage->GetDefaultPrim();
+  Arcs arcs = collectArcs(stage);
+
+  details = AssetDetails {
+    .upAxis = QString::fromStdString(pxr::UsdGeomGetStageUpAxis(stage).GetString()),
+    .metersPerUnit = pxr::UsdGeomGetStageMetersPerUnit(stage),
+    .framesPerSecond = stage->GetFramesPerSecond(),
+    .timeCodesPerSecond = stage->GetTimeCodesPerSecond(),
+    .sublayers = arcs.sublayers,
+    .payloads = arcs.payloads,
+    .references = arcs.references,
+    .primCount = [&]() {
+      auto range = stage->Traverse();
+      return (int)std::distance(range.begin(), range.end());
+    }(),
+    .variantSets = prim.IsValid() ? getVariantSets(prim) : QJsonObject {}
+  };
+
+  return details;
 }
