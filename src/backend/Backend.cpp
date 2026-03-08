@@ -68,9 +68,23 @@ void Backend::selectIndex(int index) {
   m_selectedKind = rec->kind;
   m_selectedMTime = rec->mtime;
 
-  m_details = AssetIndex::getAssetDetails(m_selectedPath);
+  auto* watcher = new QFutureWatcher<AssetDetails>(this);
+
+  connect(watcher, &QFutureWatcher<AssetDetails>::finished, this, [this, watcher]() {
+    AssetDetails result = watcher->result();
+    m_details = result;
+    watcher->deleteLater();
+  });
+
+  auto future = QtConcurrent::run([this]() {
+    return AssetIndex::getAssetDetails(m_selectedPath);
+  });
+
+  watcher->setFuture(future);
 
   emit selectedChanged();
+
+  qDebug() << QJsonDocument(m_details.variantSets).toJson(QJsonDocument::Indented);
 }
 
 void Backend::saveLibraryRoots(const QStringList& roots) {
@@ -104,7 +118,7 @@ void Backend::removeLibraryRoot(const QString& path) {
 void Backend::copySelectedPath() {
   const AssetRecord* rec = m_assets.at(m_selectedIndex);
   if (!rec) return;
-  
+ 
   QClipboard* clipboard = QGuiApplication::clipboard();
   clipboard->setText(rec->entryPath);
 }
