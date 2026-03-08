@@ -122,7 +122,7 @@ void Backend::openSelectedBlender() {
   QProcess* proc = new QProcess(this);
   QStringList args;
   args << "--python-expr";
-  args << QString("import bpy; bpy.context.preferences.view.show_splash = False; bpy.ops.object.select_all(action='SELECT'); bpy.ops.object.delete(use_global=False, confirm=False); bpy.ops.wm.usd_import(filepath='%1')").arg(m_assets.at(m_selectedIndex)->entryPath);
+  args << QString("import bpy; bpy.ops.object.select_all(action='SELECT'); bpy.ops.object.delete(use_global=False, confirm=False); bpy.ops.wm.usd_import(filepath='%1')").arg(m_assets.at(m_selectedIndex)->entryPath);
   proc->startDetached("blender", args);
 }
 
