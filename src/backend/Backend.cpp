@@ -53,12 +53,6 @@ void Backend::addLibraryRoot(const QString& rootDir) {
   rescan();
 }
 
-void Backend::loadLibrary(const QString& rootDir) {
-  for (const QString& root : loadLibraryRoots()) {
-    m_assets.setAssets(AssetIndex::scan(root));
-  }
-}
-
 void Backend::selectIndex(int index) {
   const AssetRecord* rec = m_assets.at(index);
   if (!rec) return;

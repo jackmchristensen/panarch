@@ -43,7 +43,6 @@ public:
   Q_INVOKABLE void initialize();
   Q_INVOKABLE void addLibraryRoot(const QString& rootDir);
   Q_INVOKABLE void rescan();
-  Q_INVOKABLE void loadLibrary(const QString& rootDir);
   Q_INVOKABLE void selectIndex(int index);
   Q_INVOKABLE void removeLibraryRoot(const QString& path);
   Q_INVOKABLE void copySelectedPath();
