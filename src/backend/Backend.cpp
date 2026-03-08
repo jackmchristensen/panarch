@@ -83,8 +83,6 @@ void Backend::selectIndex(int index) {
   watcher->setFuture(future);
 
   emit selectedChanged();
-
-  qDebug() << QJsonDocument(m_details.variantSets).toJson(QJsonDocument::Indented);
 }
 
 void Backend::saveLibraryRoots(const QStringList& roots) {

@@ -7,12 +7,22 @@
 #include <QKeySequence>
 #include <QObject>
 #include <QKeySequence>
+#include <QLoggingCategory>
+
 #include "backend/Backend.h"
 
 int main(int argc, char *argv[]) 
 {
   QCoreApplication::setOrganizationName("Panarch");
   QCoreApplication::setApplicationName("Panarch");
+
+  // Ignore this warning
+  // Seems to be a bug/quirk in Qt and spams the console.
+  qInstallMessageHandler([](QtMsgType type, const QMessageLogContext& ctx, const QString& msg) {
+    if (msg.contains("Ignoring sourceSize request for image url that came from grabToImage. Use the targetSize parameter of the grabToImage() function instead."))
+      return;
+    QTextStream(stderr) << msg << "\n";
+  });
 
   QGuiApplication app(argc, argv);
 

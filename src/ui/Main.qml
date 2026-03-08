@@ -356,7 +356,7 @@ ApplicationWindow {
                 if (hovered) {
                   delegateRoot.grabToImage(function(result) {
                     delegateRoot.Drag.imageSource = result.url
-                  })
+                  },)
                 }
               }
               // cursorShape: Qt.PointingHandCursor
