@@ -353,11 +353,11 @@ ApplicationWindow {
             HoverHandler {
               id: mouseFlag
               onHoveredChanged: {
-                // if (hovered) {
-                //   delegateRoot.grabToImage(function(result) {
-                //     delegateRoot.Drag.imageSource = result.url
-                //   }, Qt.size(70, 90))
-                // }
+                if (hovered) {
+                  delegateRoot.grabToImage(function(result) {
+                    delegateRoot.Drag.imageSource = result.url
+                  })
+                }
               }
               // cursorShape: Qt.PointingHandCursor
             }
