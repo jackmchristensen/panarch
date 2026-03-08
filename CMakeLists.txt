@@ -34,13 +34,6 @@ qt_add_resources(Panarch "ui"
     src/ui/Main.qml
 )
 
-add_custom_command(TARGET Panarch POST_BUILD
-  COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:Panarch>/scripts
-  COMMAND ${CMAKE_COMMAND} -E copy_if_different
-          ${CMAKE_SOURCE_DIR}/src/backend/scripts/scan_assets.py
-          $<TARGET_FILE_DIR:Panarch>/scripts/scan_assets.py
-)
-
 target_include_directories(Panarch PRIVATE 
   src
   ${PXR_INCLUDE_DIRS}
