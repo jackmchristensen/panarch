@@ -1,6 +1,8 @@
 #pragma once
 #include <QObject>
 #include <QString>
+#include <qcontainerfwd.h>
+#include <qjsonobject.h>
 #include <qtmetamacros.h>
 #include "backend/AssetListModel.h"
 #include "backend/AssetIndex.h"
@@ -14,6 +16,8 @@ public:
 
 class Backend : public QObject {
   Q_OBJECT
+
+  // AssetRecords
   Q_PROPERTY(AssetListModel* assets READ assets CONSTANT)
   Q_PROPERTY(QString selectedPath READ selectedPath NOTIFY selectedChanged)
   Q_PROPERTY(QString selectedName READ selectedName NOTIFY selectedChanged)
@@ -24,6 +28,18 @@ class Backend : public QObject {
   Q_PROPERTY(QString selectedKind READ selectedKind NOTIFY selectedChanged)
   Q_PROPERTY(QString selectedThumbnail READ selectedThumbnail NOTIFY selectedChanged)
   Q_PROPERTY(QStringList libraryRoots READ libraryRoots NOTIFY libraryRootsChanged)
+
+  // AssetDetails
+  Q_PROPERTY(bool loadingDetails READ loadingDetails NOTIFY loadingDetailsChanged)
+  Q_PROPERTY(QString upAxis READ upAxis NOTIFY detailsChanged)
+  Q_PROPERTY(double metersPerUnit READ metersPerUnit NOTIFY detailsChanged)
+  Q_PROPERTY(double framesPerSecond READ framesPerSecond NOTIFY detailsChanged)
+  Q_PROPERTY(double timeCodesPerSecond READ timeCodesPerSecond NOTIFY detailsChanged)
+  Q_PROPERTY(QStringList sublayers READ sublayers NOTIFY detailsChanged)
+  Q_PROPERTY(QStringList payloads READ payloads NOTIFY detailsChanged)
+  Q_PROPERTY(QStringList references READ references NOTIFY detailsChanged)
+  Q_PROPERTY(int primCount READ primCount NOTIFY detailsChanged)
+  Q_PROPERTY(QVariantList variantSets READ variantSets NOTIFY detailsChanged)
 
 public:
   explicit Backend(QObject* parent = nullptr);
@@ -39,6 +55,17 @@ public:
   QString selectedKind() const { return m_selectedKind; }
   QString selectedThumbnail() const { return m_selectedThumbnail; }
   QStringList libraryRoots() const { return m_libraryRoots; }
+
+  bool loadingDetails() const { return m_loadingDetails; }
+  QString upAxis() const { return m_details.upAxis; }
+  double metersPerUnit() const { return m_details.metersPerUnit; }
+  double framesPerSecond() const { return m_details.framesPerSecond; }
+  double timeCodesPerSecond() const { return m_details.timeCodesPerSecond; }
+  QStringList sublayers() const { return m_details.sublayers; }
+  QStringList payloads() const { return m_details.payloads; }
+  QStringList references() const { return m_details.references; }
+  int primCount() const { return m_details.primCount; }
+  QVariantList variantSets() const;
 
   Q_INVOKABLE void initialize();
   Q_INVOKABLE void addLibraryRoot(const QString& rootDir);
@@ -58,12 +85,15 @@ public:
 
 signals:
   void selectedChanged();
+  void loadingDetailsChanged();
+  void detailsChanged();
   void libraryRootsChanged();
   void openLibraryDialogRequested();
 
 private:
   AssetListModel m_assets;
   AssetDetails m_details;
+  bool m_loadingDetails = false;
   qint32 m_selectedIndex = -1;
   QString m_selectedPath;
   QString m_selectedName;

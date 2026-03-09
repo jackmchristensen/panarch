@@ -31,6 +31,7 @@ qt_add_resources(Panarch "ui"
     src/ui/PIndicator.qml
     src/ui/PTooltip.qml
     src/ui/PInfoRow.qml
+    src/ui/PInfoList.qml
     src/ui/Main.qml
 )
 

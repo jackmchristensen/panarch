@@ -53,7 +53,7 @@ ApplicationWindow {
     RowLayout {
       id: toolBarLayout
       anchors.fill: parent
-      spacing: 0
+      spacing: 1
 
       PMenuButton {
         Layout.leftMargin: 5
@@ -505,13 +505,81 @@ ApplicationWindow {
 
               // Info rows
               Column {
+                id: infoRows
                 width: parent.width
                 spacing: Theme.s1
 
-                PInfoRow { label: "Modified";     value: backend.selectedMTime }
-                PInfoRow { label: "Defualt Prim"; value: backend.selectedDefaultPrim }
-                PInfoRow { label: "Kind";         value: backend.selectedKind }
-                PInfoRow { label: "Size";         value: backend.selectedSize }
+                property bool showLoading: false
+
+                PInfoRow { label: "Modified";         value: backend.selectedMTime }
+                PInfoRow { label: "Defualt Prim";     value: backend.selectedDefaultPrim }
+                PInfoRow { label: "Kind";             value: backend.selectedKind }
+                PInfoRow { label: "Size";             value: backend.selectedSize }
+                PInfoRow { label: "Up Axis";          value: infoRows.showLoading ? "Loading..." : backend.upAxis }
+                PInfoRow { label: "Meters/Unit";  value: infoRows.showLoading ? "Loading..." : backend.metersPerUnit }
+                PInfoRow { label: "FPS";  value: infoRows.showLoading ? "Loading..." : backend.framesPerSecond }
+                PInfoRow { label: "TCPS";  value: infoRows.showLoading ? "Loading..." : backend.timeCodesPerSecond }
+
+                PInfoList {
+                  label: "Sublayers"
+                  listItems: backend.subLayers
+                }
+                PInfoList {
+                  label: "Payloads"
+                  listItems: backend.payloads
+                }
+                PInfoList {
+                  label: "References"
+                  listItems: backend.references
+                }
+
+                PInfoRow { label: "Prim Count";  value: infoRows.showLoading ? "Loading..." : backend.primCount }
+
+                Repeater {
+                  model: backend.variantSets
+                  delegate: Column {
+                    width: parent.width
+                    spacing: 4
+
+                    property var variantSet: modelData
+
+                    Text {
+                      text: modelData["name"]
+                      color: Theme.textSecondary
+                      font.pixelSize: Theme.bodySmall
+                      font.weight: Font.DemiBold
+                    }
+
+                    Repeater {
+                      model: modelData["variants"]
+                      delegate: Text {
+                        text: modelData
+                        color: modelData === variantSet["selected"] ? Theme.primary : Theme.text
+                        font.pixelSize: Theme.bodySmall
+                      }
+                    }
+                  }
+                }
+
+                Timer {
+                  id: loadingDelay
+                  interval: 200
+                  onTriggered: infoRows.showLoading = true
+                }
+
+                Connections {
+                  target: backend
+                  function onSelectedChanged() {
+                    infoRows.showLoading = false
+                    loadingDelay.restart()
+                  }
+                  function onLoadingDetailsChanged() {
+                    if (!backend.loadingDetails) {
+                      loadingDelay.stop()
+                      infoRows.showLoading = false
+                    }
+                  }
+                }
 
                 // Path
                 Text {

@@ -7,6 +7,7 @@
 #include <QFileInfo>
 #include <QtConcurrent/QtConcurrent>
 #include <QFutureWatcher>
+#include <qcontainerfwd.h>
 #include <qjsondocument.h>
 
 #include "backend/Backend.h"
@@ -68,11 +69,18 @@ void Backend::selectIndex(int index) {
   m_selectedKind = rec->kind;
   m_selectedMTime = rec->mtime;
 
+  m_loadingDetails = true;
+  emit loadingDetailsChanged();
+  emit selectedChanged();
+
   auto* watcher = new QFutureWatcher<AssetDetails>(this);
 
   connect(watcher, &QFutureWatcher<AssetDetails>::finished, this, [this, watcher]() {
     AssetDetails result = watcher->result();
     m_details = result;
+    m_loadingDetails = false;
+    emit loadingDetailsChanged();
+    emit detailsChanged();
     watcher->deleteLater();
   });
 
@@ -81,8 +89,6 @@ void Backend::selectIndex(int index) {
   });
 
   watcher->setFuture(future);
-
-  emit selectedChanged();
 }
 
 void Backend::saveLibraryRoots(const QStringList& roots) {
@@ -162,4 +168,15 @@ QString Backend::m_formatSize(quint64 size, SizeBase base) const {
   }
 
   return QString("%1 %2").arg(f_size, 0, 'f', 2).arg(suffix[n]);
+}
+
+QVariantList Backend::variantSets() const {
+  QVariantList result;
+  const QVariantMap map = m_details.variantSets.toVariantMap();
+  for (auto it = map.begin(); it != map.end(); it++) {
+    QVariantMap entry = it.value().toMap();
+    entry["name"] = it.key();
+    result.append(entry);
+  }
+  return result;
 }
