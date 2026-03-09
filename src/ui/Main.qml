@@ -317,8 +317,6 @@ ApplicationWindow {
                   radius: 10
                   samples: 17
                   color: model.path === backend.selectedPath ? Theme.primary : "#50000000"
-
-                  // Behavior on color { ColorAnimation { duration: 120 } }
                 }
               }
 
@@ -359,19 +357,7 @@ ApplicationWindow {
                   },)
                 }
               }
-              // cursorShape: Qt.PointingHandCursor
             }
-
-            // MouseArea {
-            //   id: mouseFlag
-            //   anchors.fill: parent
-            //   onClicked: backend.selectIndex(index)
-            //   hoverEnabled: true
-            //   cursorShape: Qt.PointingHandCursor
-            //
-            //   onPressed: thumb.scale = 0.99
-            //   onReleased: thumb.scale = 1.00
-            // }
           }
         }
       }
@@ -445,19 +431,34 @@ ApplicationWindow {
               visible: backend.selectedPath !== ""
               width: parent.width
 
-              // Thumbnail preview
+              // ── Thumbnail ────────────────────────────────────────────
               Rectangle {
                 width: parent.width
-                height: Math.min(width, 280)
+                height: Math.min(width, 240)
                 color: Theme.card
                 border.color: Theme.border
+                border.width: Theme.borderWidth
                 radius: Theme.radius
+                clip: true
 
                 Image {
+                  id: thumbLarge
                   anchors.fill: parent
-                  anchors.margins: 8
+                  anchors.margins: Theme.borderWidth
                   source: backend.selectedThumbnail ? "file://" + backend.selectedThumbnail : ""
                   fillMode: Image.PreserveAspectFit
+                  visible: backend.selectedThumbnail !== ""
+
+                  layer.enabled: true
+                  layer.effect: OpacityMask {
+                    id: opacityMask
+                    maskSource: Rectangle {
+                      id: maskedRect
+                      width: thumbLarge.width
+                      height: thumbLarge.height
+                      radius: Theme.radius
+                    }
+                  }
                 }
 
                 Text {
@@ -466,31 +467,35 @@ ApplicationWindow {
                   font.pixelSize: 64
                   visible: !backend.selectedThumbnail
                 }
+
               }
 
-              // Name + ext chip
+              // ── Name + ext chip ──────────────────────────────────────
               Row {
                 width: parent.width
-                spacing: 10
+                spacing: 8
+                // leftPadding: 2
 
                 Text {
                   text: backend.selectedName
                   color: Theme.text
                   font.pixelSize: Theme.h2
                   font.bold: true
-                  width: parent.width - extChip.width - 10
+                  width: parent.width - extChip.width - 8
                   wrapMode: Text.WrapAnywhere
                   elide: Text.ElideRight
+                  anchors.verticalCenter: parent.verticalCenter
                 }
 
                 Rectangle {
                   id: extChip
                   radius: Theme.radiusSmall
-                  height: 24
-                  color: Theme.panel
+                  height: 22
+                  color: Theme.inputBg
                   border.color: Theme.border
                   border.width: Theme.borderWidth
-                  width: Math.max(52, extLabel.implicitWidth + 16)
+                  width: Math.max(48, extLabel.implicitWidth + 16)
+                  anchors.verticalCenter: parent.verticalCenter
 
                   Text {
                     id: extLabel
@@ -499,47 +504,96 @@ ApplicationWindow {
                     color: Theme.textAccent
                     font.pixelSize: Theme.bodySmall
                     font.bold: true
+                    font.letterSpacing: 0.8
                   }
                 }
               }
 
-              // Info rows
+              // ── Asset metadata ───────────────────────────────────────
               Column {
                 id: infoRows
                 width: parent.width
-                spacing: Theme.s1
+                spacing: 2
 
                 property bool showLoading: false
 
-                PInfoRow { label: "Modified";         value: backend.selectedMTime }
-                PInfoRow { label: "Defualt Prim";     value: backend.selectedDefaultPrim }
+                PSectionHeader { text: "Asset" }
+
                 PInfoRow { label: "Kind";             value: backend.selectedKind }
+                PInfoRow { label: "Defualt Prim";     value: backend.selectedDefaultPrim }
+                PInfoRow { label: "Modified";         value: backend.selectedMTime }
                 PInfoRow { label: "Size";             value: backend.selectedSize }
+
+                // ── Path ───────────────────────────────────────────────
+                Column {
+                  width: parent.width
+                  spacing: 4
+
+                  Text {
+                    text: "Path"
+                    color: Theme.textSecondary
+                    font.pixelSize: Theme.bodySmall
+                    font.weight: Font.Medium
+                    topPadding: 2
+                  }
+
+                  Rectangle {
+                    width: parent.width
+                    implicitHeight: pathText.implicitHeight + 16
+                    radius: Theme.radiusSmall
+                    color: Theme.inputBg
+                    border.color: Theme.border
+                    border.width: Theme.borderWidth
+
+                    Text {
+                      id: pathText
+                      anchors.fill: parent
+                      anchors.margins: 8
+                      text: backend.selectedPath
+                      color: Theme.textSecondary
+                      font.pixelSize: Theme.bodySmall
+                      font.family: "monospace"
+                      wrapMode: Text.WrapAnywhere
+                    }
+                  }
+                }
+
+                PSectionHeader { text: "Stage" }
+
                 PInfoRow { label: "Up Axis";          value: infoRows.showLoading ? "Loading..." : backend.upAxis }
                 PInfoRow { label: "Meters/Unit";  value: infoRows.showLoading ? "Loading..." : backend.metersPerUnit }
                 PInfoRow { label: "FPS";  value: infoRows.showLoading ? "Loading..." : backend.framesPerSecond }
                 PInfoRow { label: "TCPS";  value: infoRows.showLoading ? "Loading..." : backend.timeCodesPerSecond }
-
-                PInfoList {
-                  label: "Sublayers"
-                  listItems: backend.subLayers
-                }
-                PInfoList {
-                  label: "Payloads"
-                  listItems: backend.payloads
-                }
-                PInfoList {
-                  label: "References"
-                  listItems: backend.references
-                }
-
                 PInfoRow { label: "Prim Count";  value: infoRows.showLoading ? "Loading..." : backend.primCount }
 
+                PSectionHeader {
+                  text: "Composition"
+                  visible: backend.sublayers.length > 0
+                    || backend.payloads.length > 0
+                    || backend.references.length > 0
+                }
+
+                Column {
+                  width: parent.width
+                  spacing: Theme.s1
+                  visible: !infoRows.showLoading
+
+                  PInfoList { label: "Sublayers"; listItems: backend.subLayers }
+                  PInfoList { label: "Payloads"; listItems: backend.payloads }
+                  PInfoList { label: "References"; listItems: backend.references }
+                }
+
+                PSectionHeader {
+                  text: "Variants"
+                  visible: backend.variantSets.length > 0 && !infoRows.showLoading
+                }
+
                 Repeater {
-                  model: backend.variantSets
+                  model: infoRows.showLoading ? [] : backend.variantSets
                   delegate: Column {
                     width: parent.width
-                    spacing: 4
+                    spacing: 3
+                    bottomPadding: 4
 
                     property var variantSet: modelData
 
@@ -547,20 +601,40 @@ ApplicationWindow {
                       text: modelData["name"]
                       color: Theme.textSecondary
                       font.pixelSize: Theme.bodySmall
-                      font.weight: Font.DemiBold
+                      font.weight: Font.Medium
+                      leftPadding: 2
+                      bottomPadding: 2
                     }
 
-                    Repeater {
-                      model: modelData["variants"]
-                      delegate: Text {
-                        text: modelData
-                        color: modelData === variantSet["selected"] ? Theme.primary : Theme.text
-                        font.pixelSize: Theme.bodySmall
+                    Flow {
+                      width: parent.width
+                      spacing: 4
+
+                      Repeater {
+                        model: modelData["variants"]
+                        delegate: Rectangle {
+                          property bool isSelected: modelData === variantSet["selected"]
+                          height: chipLabel.implicitHeight + 8
+                          width: chipLabel.implicitWidth + 16
+                          radius: Theme.radiusSmall
+                          color: isSelected ? Qt.rgba(Theme.primary.r, Theme.primary.g, Theme.primary.b, 0.15) : Theme.inputBg
+                          border.color: isSelected ? Theme.primary : Theme.border
+                          border.width: Theme.borderWidth
+
+                          Text {
+                            id: chipLabel
+                            anchors.centerIn: parent
+                            text: modelData
+                            color: isSelected ? Theme.primary : Theme.textSecondary
+                            font.pixelSize: Theme.bodySmall
+                          }
+                        }
                       }
                     }
                   }
                 }
 
+                // ── Loading state timer logic ──────────────────────────
                 Timer {
                   id: loadingDelay
                   interval: 200
@@ -580,107 +654,91 @@ ApplicationWindow {
                     }
                   }
                 }
+              }
+            }
+          }
+        }
 
-                // Path
-                Text {
-                  text: "Path"
-                  color: Theme.textSecondary
-                  font.pixelSize: Theme.bodySmall
-                  font.weight: Font.DemiBold
+        Column {
+          visible: backend.selectedPath !== ""
+          Layout.fillWidth: true
+          spacing: 10
+
+          Rectangle {
+            width: parent.width
+            height: Theme.borderWidth
+            color: Theme.borderSubtle
+          }
+
+          // ── Actions ──────────────────────────────────────────────
+          Row {
+            width: parent.width
+            spacing: 8
+
+            PButton {
+              text: "Copy"
+              onClicked: backend.copySelectedPath()
+            }
+
+            PButton {
+              text: "Reveal"
+              onClicked: backend.revealSelected()
+            }
+
+            Item {
+              implicitWidth: splitRow.implicitWidth
+              implicitHeight: splitRow.implicitHeight
+
+              Row {
+                id: splitRow
+                spacing: 0
+
+                PButton {
+                  id: openButton
+                  text: "Open"
+                  borderWidthBtn: 0
+                  radiusTR: 0
+                  radiusBR: 0
+                  radiusTL: menuBtn.popupVisible ? 0 : Theme.radius
+                  onClicked: backend.openSelectedUsdview()
                 }
 
                 Rectangle {
-                  width: parent.width
-                  // width: Math.min(parent.width, pathText.implicitWidth + 20)
-                  implicitHeight: pathText.implicitHeight + 20
-                  radius: Theme.radiusSmall
-                  color: Theme.panel
-                  border.color: Theme.border
-                  border.width: Theme.borderWidth
+                  width: Theme.borderWidth
+                  height: parent.height
+                  color: Theme.border
+                }
 
-                  Text {
-                    id: pathText
-                    anchors.fill: parent
-                    anchors.margins: 10
-                    text: backend.selectedPath
-                    color: Theme.textSecondary
-                    font.pixelSize: Theme.bodySmall
-                    wrapMode: Text.WrapAnywhere
-                  }
+                PMenuButton {
+                  id: menuBtn
+                  label: "▾"
+                  labelSize: 13
+                  paddingBtn: 10
+                  radius: Theme.radius
+                  radiusTL: 0
+                  radiusBL: 0
+                  popupRadiusBL: 0
+                  bg: Theme.card
+                  xPos: -openButton.implicitWidth - Theme.borderWidth - 0.75
+                  items: [
+                    { text: "Open in usdview", action: () => backend.openSelectedUsdview() },
+                    // { text: "Open in Houdini", action: () => console.debug("Houdini") },
+                    // { text: "Open in Maya", action: () => console.debug("Maya") },
+                    { text: "Open in Blender", action: () => backend.openSelectedBlender() },
+                  ]
                 }
               }
 
-              // Actions
-              Row {
-                width: parent.width
-                spacing: 8
-
-                PButton {
-                  text: "Copy"
-                  onClicked: backend.copySelectedPath()
-                }
-
-                PButton {
-                  text: "Reveal"
-                  onClicked: backend.revealSelected()
-                }
-
-                Item {
-                  implicitWidth: splitRow.implicitWidth
-                  implicitHeight: splitRow.implicitHeight
-
-                  Row {
-                    id: splitRow
-                    spacing: 0
- 
-                    PButton {
-                      id: openButton
-                      text: "Open"
-                      borderWidthBtn: 0
-                      radiusTR: 0
-                      radiusBR: 0
-                      radiusBL: menuBtn.popupVisible ? 0 : Theme.radius
-                      onClicked: backend.openSelectedUsdview()
-                    }
-
-                    Rectangle {
-                      width: Theme.borderWidth
-                      height: parent.height
-                      color: Theme.border
-                    }
-
-                    PMenuButton {
-                      id: menuBtn
-                      label: "▾"
-                      labelSize: 13
-                      paddingBtn: 10
-                      radius: Theme.radius
-                      radiusTL: 0
-                      radiusBL: 0
-                      popupRadiusTL: 0
-                      bg: Theme.card
-                      xPos: -openButton.implicitWidth - Theme.borderWidth - 0.75
-                      items: [
-                        { text: "Open in usdview", action: () => backend.openSelectedUsdview() },
-                        // { text: "Open in Houdini", action: () => console.debug("Houdini") },
-                        // { text: "Open in Maya", action: () => console.debug("Maya") },
-                        { text: "Open in Blender", action: () => backend.openSelectedBlender() },
-                      ]
-                    }
-                  }
-
-                  Rectangle {
-                    anchors.fill: parent
-                    topLeftRadius: Theme.radius
-                    topRightRadius: Theme.radius
-                    bottomLeftRadius: menuBtn.popupVisible ? 0 : Theme.radius
-                    bottomRightRadius: Theme.radius
-                    border.color: Theme.border
-                    border.width: Theme.borderWidth
-                    color: "transparent"
-                    z: 1
-                  }
-                }
+              Rectangle {
+                anchors.fill: parent
+                topLeftRadius: menuBtn.popupVisible ? 0 : Theme.radius
+                topRightRadius: Theme.radius
+                bottomLeftRadius: Theme.radius
+                bottomRightRadius: Theme.radius
+                border.color: Theme.border
+                border.width: Theme.borderWidth
+                color: "transparent"
+                z: 1
               }
             }
           }

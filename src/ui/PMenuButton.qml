@@ -54,12 +54,24 @@ Item {
 
   Popup {
     id: popup
-    parent: menuBtn
-    y: root.height
-    x: root.xPos
+    parent: Overlay.overlay
     width: 200
     padding: 4
-    closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutsideParent
+    closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
+
+    property real _x: 0
+    property real _y: 0
+
+    x: _x
+    y: _y
+
+    onAboutToShow: {
+      var g = menuBtn.mapToGlobal(0, 0)
+      _x = g.x + root.xPos
+      var below = g.y + menuBtn.height
+      _y = (below + implicitHeight > Overlay.overlay.height) ? g.y - implicitHeight : below
+    }
+
 
     background: Rectangle {
       color: Theme.card
