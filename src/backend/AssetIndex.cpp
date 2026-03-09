@@ -17,10 +17,7 @@
 #include <QJsonDocument>
 #include <QJsonArray>
 #include <QCoreApplication>
-#include <qcborarray.h>
-#include <qcryptographichash.h>
-#include <qjsonobject.h>
-#include <qtypes.h>
+#include <QCryptographicHash>
 
 namespace {
 
