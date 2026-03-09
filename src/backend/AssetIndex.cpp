@@ -18,6 +18,7 @@
 #include <QJsonArray>
 #include <QCoreApplication>
 #include <qcborarray.h>
+#include <qcryptographichash.h>
 #include <qjsonobject.h>
 #include <qtypes.h>
 
@@ -271,6 +272,7 @@ QVector<AssetRecord> AssetIndex::scan(const QString& rootDir){
     AssetRecord record = result.assetData.value(path);
 
     QFileInfo fi(path);
+    record.id = QString("%1").arg(QString(QCryptographicHash::hash(path.toUtf8(),QCryptographicHash::Sha1).toHex()));
     record.entryPath = path;
     record.fileExt = fi.suffix().toLower();
     record.fileSize = fi.size();
