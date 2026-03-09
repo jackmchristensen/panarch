@@ -36,6 +36,7 @@ class AssetListModel : public QAbstractListModel {
 public:
   enum Roles {
     NameRole = Qt::UserRole + 1,
+    IdRole,
     PathRole,
     TypeRole,
     ThumbnailRole,
