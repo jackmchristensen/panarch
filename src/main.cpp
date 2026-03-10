@@ -41,6 +41,7 @@ int main(int argc, char *argv[])
   QShortcut* addLibShortcut = new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_O), window, [&backend]() { emit backend.openLibraryDialogRequested(); });
   QShortcut* searchShortcut = new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_K), window, [&backend]() { emit backend.focusFilter(); });
   QShortcut* filterShortcut = new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_F), window, [&backend]() { emit backend.focusFilter(); });
+  QShortcut* copyAssetPathShortcut = new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_C), window, [&backend]() { emit backend.copySelectedPath(); });
 
   if (engine.rootObjects().isEmpty())
     return -1;
