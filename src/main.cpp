@@ -8,7 +8,7 @@
 #include <QObject>
 #include <QKeySequence>
 #include <QLoggingCategory>
-#include <qkeysequence.h>
+#include <QPixmapCache>
 
 #include "backend/Backend.h"
 
@@ -32,6 +32,7 @@ int main(int argc, char *argv[])
 
   // qputenv("QT_QUICK_CONTROLS_STYLE", "Universal");
   QQmlApplicationEngine engine;
+  QPixmapCache::setCacheLimit(51200);
   engine.rootContext()->setContextProperty("backend", &backend);
   engine.load(QUrl(QStringLiteral("qrc:/src/ui/Main.qml")));
 

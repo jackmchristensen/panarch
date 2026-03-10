@@ -312,5 +312,8 @@ AssetDetails AssetIndex::getAssetDetails(const QString& assetPath) {
     .variantSets = prim.IsValid() ? getVariantSets(prim) : QJsonObject {}
   };
 
+  stage->Unload();
+  stage = nullptr;
+
   return details;
 }
