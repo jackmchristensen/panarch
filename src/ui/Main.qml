@@ -165,10 +165,15 @@ ApplicationWindow {
           activeFocusOnPress: true
           Keys.onEscapePressed: focus = false
           Keys.onReturnPressed: {
-            backend.selectFirst()
+            if (text !== "") backend.selectFirst()
             focus = false
           }
           onTextChanged: backend.filteredAssets.nameFilter = text
+
+          onFocusChanged: {
+            if (focus && filter.focusReason !== Qt.MouseFocusReason)
+              selectAll()
+          }
 
           anchors.horizontalCenter: parent.horizontalCenter
           anchors.top: parent.top
