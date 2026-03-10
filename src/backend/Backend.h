@@ -1,6 +1,7 @@
 #pragma once
 #include <QObject>
 #include <QString>
+#include <qtmetamacros.h>
 #include "backend/AssetListModel.h"
 #include "backend/AssetFilterModel.h"
 #include "backend/AssetIndex.h"
@@ -71,6 +72,7 @@ public:
   Q_INVOKABLE void addLibraryRoot(const QString& rootDir);
   Q_INVOKABLE void rescan();
   Q_INVOKABLE void selectIndex(int proxyRow);
+  Q_INVOKABLE void selectFirst();
   Q_INVOKABLE void removeLibraryRoot(const QString& path);
   Q_INVOKABLE void copySelectedPath();
   Q_INVOKABLE void openSelectedUsdview();
@@ -89,6 +91,7 @@ signals:
   void detailsChanged();
   void libraryRootsChanged();
   void openLibraryDialogRequested();
+  void focusFilter();
 
 private:
   AssetListModel m_assets;

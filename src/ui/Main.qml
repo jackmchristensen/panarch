@@ -35,6 +35,13 @@ ApplicationWindow {
     }
   }
 
+  Connections {
+    target: backend
+    function onFocusFilter() {
+      filter.forceActiveFocus()
+    }
+  }
+
   header: ToolBar {
     implicitHeight: toolBarLayout.implicitHeight + Theme.s2
 
@@ -157,7 +164,10 @@ ApplicationWindow {
           focus: false
           activeFocusOnPress: true
           Keys.onEscapePressed: focus = false
-          Keys.onReturnPressed: focus = false
+          Keys.onReturnPressed: {
+            backend.selectFirst()
+            focus = false
+          }
           onTextChanged: backend.filteredAssets.nameFilter = text
 
           anchors.horizontalCenter: parent.horizontalCenter

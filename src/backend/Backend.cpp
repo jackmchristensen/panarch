@@ -94,6 +94,11 @@ void Backend::selectIndex(int proxyRow) {
   watcher->setFuture(future);
 }
 
+void Backend::selectFirst() {
+  if (m_filterModel.rowCount() == 0) return;
+  selectIndex(0);
+}
+
 void Backend::saveLibraryRoots(const QStringList& roots) {
   QSettings settings;
   settings.setValue("library/roots", roots);
