@@ -593,7 +593,7 @@ ApplicationWindow {
                   spacing: Theme.s1
                   visible: !infoRows.showLoading
 
-                  PInfoList { label: "Sublayers"; listItems: backend.subLayers }
+                  PInfoList { label: "Sublayers"; listItems: backend.sublayers }
                   PInfoList { label: "Payloads"; listItems: backend.payloads }
                   PInfoList { label: "References"; listItems: backend.references }
                 }
