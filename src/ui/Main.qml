@@ -209,6 +209,20 @@ ApplicationWindow {
           anchors.left: parent.left
           anchors.right: parent.right
           anchors.bottom: parent.bottom
+          clip: true
+
+          WheelHandler {
+            acceptedDevices: PointerDevice.Mouse | PointerDevice.TouchPad
+            onWheel: (event) => {
+              assetGrid.contentY = Math.max(
+                0,
+                Math.min(
+                  assetGrid.contentY - event.angleDelta.y * 0.15,
+                  assetGrid.contentHeight - assetGrid.height
+                )
+              )
+            }
+          }
 
           anchors.margins: Theme.s3
           cellWidth: 140
