@@ -1,10 +1,8 @@
 #pragma once
 #include <QObject>
 #include <QString>
-#include <qcontainerfwd.h>
-#include <qjsonobject.h>
-#include <qtmetamacros.h>
 #include "backend/AssetListModel.h"
+#include "backend/AssetFilterModel.h"
 #include "backend/AssetIndex.h"
 
 enum class SizeBase { BINARY, DECIMAL };
@@ -19,6 +17,7 @@ class Backend : public QObject {
 
   // AssetRecords
   Q_PROPERTY(AssetListModel* assets READ assets CONSTANT)
+  Q_PROPERTY(AssetFilterModel* filteredAssets READ filteredAssets CONSTANT)
   Q_PROPERTY(QString selectedPath READ selectedPath NOTIFY selectedChanged)
   Q_PROPERTY(QString selectedName READ selectedName NOTIFY selectedChanged)
   Q_PROPERTY(QString selectedExt READ selectedExt NOTIFY selectedChanged)
@@ -45,6 +44,7 @@ public:
   explicit Backend(QObject* parent = nullptr);
 
   AssetListModel* assets() { return &m_assets; }
+  AssetFilterModel* filteredAssets() { return &m_filterModel; }
 
   QString selectedPath() const { return m_selectedPath; }
   QString selectedName() const { return m_selectedName; }
@@ -70,7 +70,7 @@ public:
   Q_INVOKABLE void initialize();
   Q_INVOKABLE void addLibraryRoot(const QString& rootDir);
   Q_INVOKABLE void rescan();
-  Q_INVOKABLE void selectIndex(int index);
+  Q_INVOKABLE void selectIndex(int proxyRow);
   Q_INVOKABLE void removeLibraryRoot(const QString& path);
   Q_INVOKABLE void copySelectedPath();
   Q_INVOKABLE void openSelectedUsdview();
@@ -92,9 +92,9 @@ signals:
 
 private:
   AssetListModel m_assets;
+  AssetFilterModel m_filterModel;
   AssetDetails m_details;
   bool m_loadingDetails = false;
-  qint32 m_selectedIndex = -1;
   QString m_selectedPath;
   QString m_selectedName;
   QString m_selectedExt;

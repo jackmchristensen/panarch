@@ -7,13 +7,16 @@
 #include <QFileInfo>
 #include <QtConcurrent/QtConcurrent>
 #include <QFutureWatcher>
+#include <QModelIndex>
 #include <qcontainerfwd.h>
 #include <qjsondocument.h>
 
 #include "backend/Backend.h"
 #include "backend/AssetIndex.h"
 
-Backend::Backend(QObject* parent) : QObject(parent) {}
+Backend::Backend(QObject* parent) : QObject(parent) {
+  m_filterModel.setSourceModel(&m_assets);
+}
 
 void Backend::initialize() {
   rescan();
@@ -54,11 +57,11 @@ void Backend::addLibraryRoot(const QString& rootDir) {
   rescan();
 }
 
-void Backend::selectIndex(int index) {
-  const AssetRecord* rec = m_assets.at(index);
+void Backend::selectIndex(int proxyRow) {
+  QModelIndex sourceIndex = m_filterModel.mapToSource(m_filterModel.index(proxyRow, 0));
+  const AssetRecord* rec = m_assets.at(sourceIndex.row());
   if (!rec) return;
 
-  m_selectedIndex = index;
 
   m_selectedPath = rec->entryPath;
   m_selectedName = rec->displayName;
@@ -120,28 +123,25 @@ void Backend::removeLibraryRoot(const QString& path) {
 }
 
 void Backend::copySelectedPath() {
-  const AssetRecord* rec = m_assets.at(m_selectedIndex);
-  if (!rec) return;
- 
   QClipboard* clipboard = QGuiApplication::clipboard();
-  clipboard->setText(rec->entryPath);
+  clipboard->setText(m_selectedPath);
 }
 
 void Backend::openSelectedUsdview() {
   QStringList args;
-  args << m_assets.at(m_selectedIndex)->entryPath;
+  args << m_selectedPath;
   QProcess::startDetached("usdview", args);
 }
 
 void Backend::openSelectedBlender() {
   QStringList args;
   args << "--python-expr";
-  args << QString("import bpy; bpy.ops.object.select_all(action='SELECT'); bpy.ops.object.delete(use_global=False, confirm=False); bpy.ops.wm.usd_import(filepath='%1')").arg(m_assets.at(m_selectedIndex)->entryPath);
+  args << QString("import bpy; bpy.ops.object.select_all(action='SELECT'); bpy.ops.object.delete(use_global=False, confirm=False); bpy.ops.wm.usd_import(filepath='%1')").arg(m_selectedPath);
   QProcess::startDetached("blender", args);
 }
 
 void Backend::revealSelected() {
-  QFileInfo fileInfo(m_assets.at(m_selectedIndex)->entryPath);
+  QFileInfo fileInfo(m_selectedPath);
   QString url = "file:///" + fileInfo.dir().absolutePath();
   QDesktopServices::openUrl(QUrl(url));
 }

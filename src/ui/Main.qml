@@ -157,6 +157,8 @@ ApplicationWindow {
           focus: false
           activeFocusOnPress: true
           Keys.onEscapePressed: focus = false
+          Keys.onReturnPressed: focus = false
+          onTextChanged: backend.filteredAssets.nameFilter = text
 
           anchors.horizontalCenter: parent.horizontalCenter
           anchors.top: parent.top
@@ -196,10 +198,10 @@ ApplicationWindow {
           anchors.margins: Theme.s3
           cellWidth: 140
           cellHeight: 180
-          model: backend.assets
+          model: backend.filteredAssets
 
           displaced: Transition {
-            NumberAnimation { properties: "x,y"; duration: 250}
+            NumberAnimation { properties: "x,y"; duration: 250; easing.type: Easing.InQuad }
           }
 
           delegate: Item {
@@ -241,9 +243,7 @@ ApplicationWindow {
 
                   layer.enabled: true
                   layer.effect: OpacityMask {
-                    id: opacityMask
                     maskSource: Rectangle {
-                      id: maskedRect
                       width: imageThumb.width
                       height: imageThumb.height
                       radius: Theme.radiusSmall

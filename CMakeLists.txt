@@ -18,6 +18,7 @@ qt_add_executable(Panarch
   src/main.cpp
   src/backend/AssetIndex.cpp
   src/backend/AssetListModel.cpp
+  src/backend/AssetFilterModel.cpp
   src/backend/Backend.cpp
 )
 
