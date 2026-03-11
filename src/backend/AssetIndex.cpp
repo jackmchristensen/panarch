@@ -18,6 +18,7 @@
 #include <QJsonArray>
 #include <QCoreApplication>
 #include <QCryptographicHash>
+#include <QStandardPaths>
 
 namespace {
 
@@ -275,11 +276,15 @@ QVector<AssetRecord> AssetIndex::scan(const QString& rootDir){
     record.fileSize = fi.size();
     record.mtime = fi.lastModified(QTimeZone::UTC);
 
+    // TODO check for thumbnail path in assetInfo in USD file
     const QString thumb0 = fi.absoluteFilePath() + ".png";
     const QString thumb1 = fi.absolutePath() + "/" + fi.completeBaseName() + ".png";
+    const QString thumb2 = QStandardPaths::writableLocation(QStandardPaths::CacheLocation) + "/thumbnails/" + record.id + ".thumbnail.jpg";
+
 
     if (QFileInfo::exists(thumb0)) record.thumbnailPath = thumb0;
     else if (QFileInfo::exists(thumb1)) record.thumbnailPath = thumb1;
+    else if (QFileInfo::exists(thumb2)) record.thumbnailPath = thumb2;
  
     out.append(record);
   }

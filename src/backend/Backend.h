@@ -84,6 +84,7 @@ public:
   QStringList loadLibraryRoots();
   void saveUserSettings();
   void loadUserSettings();
+  void generateThumbnailAsync(const QString& assetPath, const QString& cachePath, const QString& assetId);
 
 signals:
   void selectedChanged();

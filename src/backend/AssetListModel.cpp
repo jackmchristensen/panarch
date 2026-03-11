@@ -1,3 +1,4 @@
+#include <QStandardPaths>
 #include "backend/AssetListModel.h"
 
 AssetListModel::AssetListModel(QObject* parent) : QAbstractListModel(parent) {}
@@ -42,6 +43,10 @@ QHash<int, QByteArray> AssetListModel::roleNames() const {
 void AssetListModel::setAssets(QVector<AssetRecord> assets) {
   beginResetModel();
   m_assets = std::move(assets);
+  m_idToRow.clear();
+  for (int i = 0; i < m_assets.size(); i++) {
+    m_idToRow[m_assets[i].id] = i;
+  }
   endResetModel();
 }
 
@@ -50,3 +55,12 @@ const AssetRecord* AssetListModel::at(int row) const {
   return &m_assets[row];
 }
 
+void AssetListModel::onThumbnailReady(const QString& assetId, const QString& thumbnailPath) {
+  auto it = m_idToRow.find(assetId);
+  if (it == m_idToRow.end()) return;
+
+  int row = it.value();
+  m_assets[row].thumbnailPath = thumbnailPath;
+  QModelIndex idx = index(row);
+  emit dataChanged(idx, idx, { ThumbnailRole });
+}

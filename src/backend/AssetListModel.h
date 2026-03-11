@@ -55,6 +55,9 @@ public:
   void setAssets(QVector<AssetRecord> assets);
   const AssetRecord* at(int row) const;
 
+  void onThumbnailReady(const QString& assetId, const QString& thumbnailPath);
+
 private:
   QVector<AssetRecord> m_assets;
+  QHash<QString, int> m_idToRow;
 };

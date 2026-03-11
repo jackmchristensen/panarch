@@ -266,8 +266,8 @@ ApplicationWindow {
                   anchors.fill: parent
                   anchors.margins: 4
                   source: model.thumbnail ? "file://" + model.thumbnail : ""
-                  sourceSize.width: 120
-                  sourceSize.height: 120
+                  sourceSize.width: 256
+                  sourceSize.height: 256
                   fillMode: Image.PreserveAspectFit
 
                   layer.enabled: true
@@ -281,11 +281,22 @@ ApplicationWindow {
                 }
 
                 // Fallback icon when no thumbnail
-                Text {
+                // Text {
+                //   anchors.centerIn: parent
+                //   text: "📦️"
+                //   font.pixelSize: 48
+                //   visible: !model.thumbnail
+                // }
+
+                BusyIndicator {
+                  id: thumbnailLoading
                   anchors.centerIn: parent
-                  text: "📦️"
-                  font.pixelSize: 48
-                  visible: !model.thumbnail
+                  running: !model.thumbnail
+
+                  layer.enabled: !model.thumbnail
+                  layer.effect: ColorOverlay {
+                    color: Theme.primary
+                  }
                 }
 
                 // Kind chip

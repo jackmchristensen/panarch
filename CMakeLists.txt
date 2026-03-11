@@ -10,9 +10,26 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
 
 find_package(X11 REQUIRED)
 find_package(pxr REQUIRED)
-find_package(Qt6 REQUIRED COMPONENTS Quick)
+find_package(Qt6 REQUIRED COMPONENTS Quick Gui OpenGL)
 
 qt_standard_project_setup()
+
+qt_add_executable(thumbnail_generator
+  src/render/ThumbnailGeneratorMain.cpp
+  src/render/ThumbnailGenerator.cpp
+)
+
+target_include_directories(thumbnail_generator PRIVATE
+  src
+  ${PXR_INCLUDE_DIRS}
+  /usr/include/python3.14
+)
+
+target_link_libraries(thumbnail_generator PRIVATE
+  Qt6::OpenGL
+  Qt6::Gui
+  usd_m
+)
 
 qt_add_executable(Panarch
   src/main.cpp
@@ -37,11 +54,12 @@ qt_add_resources(Panarch "ui"
     src/ui/Main.qml
 )
 
-target_include_directories(Panarch PRIVATE 
+target_include_directories(Panarch PRIVATE
   src
   ${PXR_INCLUDE_DIRS}
 )
-target_link_libraries(Panarch PRIVATE 
+
+target_link_libraries(Panarch PRIVATE
   Qt6::Quick
   Qt6::Concurrent
   usd_m

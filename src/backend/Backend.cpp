@@ -8,8 +8,7 @@
 #include <QtConcurrent/QtConcurrent>
 #include <QFutureWatcher>
 #include <QModelIndex>
-#include <qcontainerfwd.h>
-#include <qjsondocument.h>
+#include <QStandardPaths>
 
 #include "backend/Backend.h"
 #include "backend/AssetIndex.h"
@@ -23,12 +22,36 @@ void Backend::initialize() {
   loadUserSettings();
 }
 
-void Backend::rescan() {
-  auto* watcher = new QFutureWatcher<QVector<AssetRecord>>(this);
+void Backend::generateThumbnailAsync(const QString& assetPath, const QString& cachePath, const QString& assetId) {
+  QProcess* process = new QProcess(this);
+  process->start("/home/jchristensen/Dev/panarch/build-debug/bin/thumbnail_generator",
+                 QStringList() << assetPath << cachePath);
 
+  connect(process, &QProcess::finished, this, [this, cachePath, assetId, process](int exitCode) {
+    if (exitCode == 0) {
+      m_assets.onThumbnailReady(assetId, cachePath);
+    }
+
+    process->deleteLater();
+  });
+}
+
+void Backend::rescan() {
+  QDir().mkpath(QStandardPaths::writableLocation(QStandardPaths::CacheLocation) + "/thumbnails");
+
+  auto* watcher = new QFutureWatcher<QVector<AssetRecord>>(this);
+ 
   connect(watcher, &QFutureWatcher<QVector<AssetRecord>>::finished, this, [this, watcher]() {
     QVector<AssetRecord> result = watcher->result();
     m_assets.setAssets(result);
+
+    for (const AssetRecord& rec : result) {
+      QString cachePath = QStandardPaths::writableLocation(QStandardPaths::CacheLocation) + "/thumbnails/" + rec.id + ".thumbnail.jpg";
+      if (!QFile::exists(cachePath) && rec.thumbnailPath == "") {
+        generateThumbnailAsync(rec.entryPath, cachePath, rec.id);
+      }
+    }
+
     watcher->deleteLater();
   });
 
@@ -61,7 +84,6 @@ void Backend::selectIndex(int proxyRow) {
   QModelIndex sourceIndex = m_filterModel.mapToSource(m_filterModel.index(proxyRow, 0));
   const AssetRecord* rec = m_assets.at(sourceIndex.row());
   if (!rec) return;
-
 
   m_selectedPath = rec->entryPath;
   m_selectedName = rec->displayName;

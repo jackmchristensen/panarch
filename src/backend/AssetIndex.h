@@ -32,7 +32,7 @@ struct AssetRecord {
   QString entryPath;
   QString displayName;
   QString fileExt;
-  QString thumbnailPath;
+  QString thumbnailPath = "";
   QDateTime mtime;
   quint64 fileSize = 0;
 
