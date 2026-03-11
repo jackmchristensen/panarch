@@ -34,3 +34,28 @@ bool AssetFilterModel::filterAcceptsRow(int sourceRow, const QModelIndex& source
 
   return true;
 }
+
+void AssetFilterModel::setSortMode(SortMode mode) {
+  if (m_sortMode == mode) return;
+  m_sortMode = mode;
+  invalidate();
+  emit sortModeChanged();
+}
+
+bool AssetFilterModel::lessThan(const QModelIndex& left, const QModelIndex& right) const {
+  const auto* model = qobject_cast<const AssetListModel*>(sourceModel());
+  if (!model) return false;
+
+  const AssetRecord* a = model->at(left.row());
+  const AssetRecord* b = model->at(right.row());
+  if (!a || !b) return false;
+
+  switch (m_sortMode) {
+    case SortNameAsc: return a->displayName.toLower() < b->displayName.toLower();
+    case SortNameDesc: return a->displayName.toLower() > b->displayName.toLower();
+    case SortNewestFirst: return a->mtime > b->mtime;
+    case SortOldestFirst: return a->mtime < b->mtime;
+  }
+
+  return false;
+}

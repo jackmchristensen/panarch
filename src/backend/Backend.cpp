@@ -15,6 +15,7 @@
 
 Backend::Backend(QObject* parent) : QObject(parent) {
   m_filterModel.setSourceModel(&m_assets);
+  m_filterModel.sort(0);
 }
 
 void Backend::initialize() {
