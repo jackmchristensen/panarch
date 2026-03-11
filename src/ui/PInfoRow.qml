@@ -4,7 +4,7 @@ import "."
 Row {
   property string label: ""
   property string value: ""
-  property int labelWidth: 88
+  property int labelWidth: 96
 
   width: parent.width
   spacing: 8
