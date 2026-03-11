@@ -1,5 +1,5 @@
 #include <QGuiApplication>
-#include "render/ThumbnailGenerator.h"
+#include "processes/ThumbnailGenerator.h"
 
 int main(int argc, char* argv[]) {
   QGuiApplication app(argc, argv);

@@ -15,8 +15,8 @@ find_package(Qt6 REQUIRED COMPONENTS Quick Gui OpenGL)
 qt_standard_project_setup()
 
 qt_add_executable(thumbnail_generator
-  src/render/ThumbnailGeneratorMain.cpp
-  src/render/ThumbnailGenerator.cpp
+  src/processes/ThumbnailGeneratorMain.cpp
+  src/processes/ThumbnailGenerator.cpp
 )
 
 target_include_directories(thumbnail_generator PRIVATE

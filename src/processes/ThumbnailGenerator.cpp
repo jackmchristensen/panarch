@@ -26,7 +26,7 @@
 #include <tuple>
 #include <limits>
 
-#include "render/ThumbnailGenerator.h"
+#include "processes/ThumbnailGenerator.h"
 
 namespace {
 
