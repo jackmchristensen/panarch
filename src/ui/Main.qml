@@ -559,10 +559,10 @@ ApplicationWindow {
 
                 PSectionHeader { text: "Asset" }
 
-                PInfoRow { label: "Kind";             value: backend.selectedKind }
-                PInfoRow { label: "Defualt Prim";     value: backend.selectedDefaultPrim }
-                PInfoRow { label: "Modified";         value: backend.selectedMTime }
-                PInfoRow { label: "Size";             value: backend.selectedSize }
+                PInfoRow { label: "Kind";               value: backend.selectedKind }
+                PInfoRow { label: "Default Prim Path";  value: backend.selectedDefaultPrim }
+                PInfoRow { label: "Modified";           value: backend.selectedMTime }
+                PInfoRow { label: "Size";               value: backend.selectedSize }
 
                 // ── Path ───────────────────────────────────────────────
                 Column {
