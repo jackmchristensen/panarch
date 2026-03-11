@@ -24,7 +24,8 @@ void Backend::initialize() {
 
 void Backend::generateThumbnailAsync(const QString& assetPath, const QString& cachePath, const QString& assetId) {
   QProcess* process = new QProcess(this);
-  process->start("/home/jchristensen/Dev/panarch/build-debug/bin/thumbnail_generator",
+  QString generatorPath = QCoreApplication::applicationDirPath() + "/thumbnail_generator";
+  process->start(generatorPath,
                  QStringList() << assetPath << cachePath);
 
   connect(process, &QProcess::finished, this, [this, cachePath, assetId, process](int exitCode) {
