@@ -416,6 +416,7 @@ ApplicationWindow {
             HoverHandler {
               id: mouseFlag
               onHoveredChanged: {
+                thumb.scale = hovered ? 1.015 : 1.0
                 if (hovered) {
                   delegateRoot.grabToImage(function(result) {
                     delegateRoot.Drag.imageSource = result.url
