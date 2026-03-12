@@ -13,7 +13,7 @@ QtObject {
   readonly property int s4: 18
 
   // Radius / Borders
-  readonly property int radius: 8
+  readonly property int radius: 12
   readonly property int radiusSmall: radius - 4
   readonly property int radiusLarge: radius + 2
   readonly property int borderWidth: 1

@@ -158,53 +158,78 @@ ApplicationWindow {
       Item {
         anchors.fill: parent
 
-        TextField {
-          id: filter
-
-          focus: false
-          activeFocusOnPress: true
-          Keys.onEscapePressed: focus = false
-          Keys.onReturnPressed: {
-            if (text !== "") backend.selectFirst()
-            focus = false
-          }
-          onTextChanged: backend.filteredAssets.nameFilter = text
-
-          onFocusChanged: {
-            if (focus && filter.focusReason !== Qt.MouseFocusReason)
-              selectAll()
-          }
-
-          anchors.horizontalCenter: parent.horizontalCenter
+        Row {
+          id: filterRow
           anchors.top: parent.top
           anchors.topMargin: 15
-          width: 280
-          placeholderText: qsTr("Filter...")
+          anchors.horizontalCenter: parent.horizontalCenter
+          spacing: 15
 
-          leftInset: -8
-          rightInset: -8
+          TextField {
+            id: filter
+            anchors.verticalCenter: parent.verticalCenter
 
-          color: Theme.text
-          placeholderTextColor: Theme.textSecondary
+            focus: false
+            activeFocusOnPress: true
+            Keys.onEscapePressed: focus = false
+            Keys.onReturnPressed: {
+              if (text !== "") backend.selectFirst()
+              focus = false
+            }
+            onTextChanged: backend.filteredAssets.nameFilter = text
 
-          background: Rectangle {
-            implicitWidth: 200
-            implicitHeight: 32
-            radius: implicitHeight / 2
-            color: Theme.inputBg
-            border.color: filter.activeFocus ? Theme.primary : Theme.border
-            border.width: Theme.borderWidth
+            onFocusChanged: {
+              if (focus && filter.focusReason !== Qt.MouseFocusReason)
+                selectAll()
+            }
 
-            // layer.enabled: true
+            // anchors.horizontalCenter: parent.horizontalCenter
+            // anchors.top: parent.top
+            // anchors.topMargin: 15
+            width: 280
+            placeholderText: qsTr("Filter...")
+
+            leftInset: -8
+            rightInset: -8
+
+            color: Theme.text
+            placeholderTextColor: Theme.textSecondary
+
+            background: Rectangle {
+              implicitWidth: 200
+              implicitHeight: 32
+              radius: implicitHeight / 2
+              color: Theme.inputBg
+              border.color: filter.activeFocus ? Theme.primary : Theme.border
+              border.width: Theme.borderWidth
+
+              // layer.enabled: true
+            }
           }
 
+          PMenuButton {
+            anchors.verticalCenter: parent.verticalCenter
+            paddingBtn: 8
+            border: true
+            radius: Theme.radiusSmall
+            radiusBL: popupVisible ? 0 : Theme.radiusSmall
+            popupRadiusTL: 0
+
+            label: "☰"
+            items: [
+              { text: "A–Z", action: () => backend.filteredAssets.sortMode = 0 },
+              { text: "Z–A", action: () => backend.filteredAssets.sortMode = 1 },
+              { text: "New", action: () => backend.filteredAssets.sortMode = 2 },
+              { text: "Old", action: () => backend.filteredAssets.sortMode = 3 }
+            ]
+          }
         }
 
         // ──── AssetGrid ────────────────────────────────────────────
         GridView {
           id: assetGrid
           interactive: false
-          anchors.top: filter.bottom
+          anchors.top: filterRow.bottom
           anchors.topMargin: 10
           anchors.left: parent.left
           anchors.right: parent.right
@@ -232,7 +257,7 @@ ApplicationWindow {
           displaced: Transition {
             NumberAnimation { properties: "x,y"; duration: 250; easing.type: Easing.InQuad }
           }
-
+ 
           delegate: Item {
             id: delegateRoot
             width: assetGrid.cellWidth
