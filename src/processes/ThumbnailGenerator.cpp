@@ -30,6 +30,25 @@
 
 namespace {
 
+// Compute a world-space bounding box by iterating all UsdGeomMesh prims and
+// transforming their points into world space.
+//
+// USD provides UsdGeomBBoxCache for this, but it crashes on destruction with
+// a SIGSEGV inside ~TfHashMap when using the system USD package. The backtrace
+// shows the destructor walking a hashtable node at address 0x23, which is an
+// invalid pointer consistent with an ABI mismatch between USD's internal memory
+// layout and what this translation unit expects — likely a difference in
+// compiler flags or stdlib between our build and the packaged USD library.
+// This manual mesh-point traversal is sufficient for camera placement and
+// sidesteps the issue entirely.
+//
+// Reproduces with pxr 0.25.11 (system package on Arch/GCC 15.2).
+// If USD is built from source with matching flags this may not be needed.
+//
+// Returns { bboxMin, bboxMax }. If the stage has no mesh geometry both
+// vectors will contain infinity/-infinity — callers should handle that case
+// if it matters (currently the camera placement degrades gracefully to NaN
+// distances, which produces a blank render rather than a crash).
 std::tuple<pxr::GfVec3d, pxr::GfVec3d> getBbox(pxr::UsdStageRefPtr stage) {
   double inf = std::numeric_limits<double>::infinity();
   pxr::GfVec3d bboxMin( inf, inf, inf);
@@ -61,6 +80,8 @@ std::tuple<pxr::GfVec3d, pxr::GfVec3d> getBbox(pxr::UsdStageRefPtr stage) {
 } // namespace
 
 void ThumbnailGenerator::GenerateThumbnail(const QString& assetPath, const QString& outputPath) {
+  // UsdImagingGLEngine requires an active OpenGL context. QOffscreenSurface
+  // gives us one without creating a visible window.
   QOffscreenSurface surface;
   surface.create();
 
@@ -73,6 +94,8 @@ void ThumbnailGenerator::GenerateThumbnail(const QString& assetPath, const QStri
   QOpenGLFramebufferObjectFormat fboFormat;
   fboFormat.setAttachment(QOpenGLFramebufferObject::Depth);
   fboFormat.setInternalTextureFormat(GL_RGB8);
+  // TODO: Re-enable MSAA once we confirm it works with UsdImagingGLEngine on
+  // the target hardware. Currently disabled because it causes a blank render.
   // fboFormat.setSamples(4);
 
   QOpenGLFramebufferObject fbo(512, 512, fboFormat);
@@ -83,8 +106,14 @@ void ThumbnailGenerator::GenerateThumbnail(const QString& assetPath, const QStri
   params.drawMode = pxr::UsdImagingGLDrawMode::DRAW_SHADED_SMOOTH;
   params.enableLighting = true;
   params.clearColor = pxr::GfVec4f(0.2f, 0.2f, 0.2f, 1.0f);
+  // CULL_STYLE_NOTHING ensures we see the asset even if face winding is
+  // inconsistent, which is common in assets imported from other DCCs.
   params.cullStyle = pxr::UsdImagingGLCullStyle::CULL_STYLE_NOTHING;
 
+  // USD stages can be Y-up or Z-up depending on the originating DCC.
+  // UsdImagingGLEngine assumes Y-up, so for Z-up stages we bake a -90° X
+  // rotation onto the default prim before rendering.
+  // NOTE: This mutates the stage, which is fine since this process owns it.
   pxr::TfToken upAxis = pxr::UsdGeomGetStageUpAxis(stage);
   if (upAxis == pxr::UsdGeomTokens->z) {
     pxr::UsdPrim defaultPrim = stage->GetDefaultPrim();
@@ -96,12 +125,16 @@ void ThumbnailGenerator::GenerateThumbnail(const QString& assetPath, const QStri
     }
   }
 
+  // Place the camera based on the scene's bounding box so the asset fills the
+  // frame regardless of its real-world scale.
   std::tuple<pxr::GfVec3d, pxr::GfVec3d> bbox = getBbox(stage);
   pxr::GfVec3d bboxCenter = (std::get<0>(bbox) + std::get<1>(bbox)) * 0.5;
   pxr::GfVec3d bboxSize = std::get<1>(bbox) - std::get<0>(bbox);
   double sceneRadius = bboxSize.GetLength() * 0.5;
-  double distance = sceneRadius * 3.5;
+  double distance    = sceneRadius * 3.5; // multiplier tuned to avoid clipping
 
+  // Slightly elevated off-axis angle gives better depth cues than a straight
+  // front/side/top view.
   pxr::GfVec3d eye = bboxCenter + pxr::GfVec3d(1.0, 0.8, 3.0).GetNormalized() * distance;
   pxr::GfVec3d center = bboxCenter;
   pxr::GfVec3d up(0.0, 1.0, 0.0);
@@ -116,6 +149,8 @@ void ThumbnailGenerator::GenerateThumbnail(const QString& assetPath, const QStri
   pxr::UsdImagingGLEngine engine;
   engine.SetCameraState(viewMatrix, frustum.ComputeProjectionMatrix());
 
+  // Key + fill two-light rig. The key is intentionally overbright (1.5)
+  // to compensate for the dark ambient and produce readable thumbnails.
   pxr::GlfSimpleLightVector lights;
 
   pxr::GlfSimpleLight keyLight;
@@ -146,6 +181,9 @@ void ThumbnailGenerator::GenerateThumbnail(const QString& assetPath, const QStri
 
   QImage thumbnail = fbo.toImage();
 
+  // UsdImagingGLEngine renders in linear light. Apply gamma 2.2 encoding so
+  // the JPEG looks correct in standard image viewers and the Qt UI.
+  // Pre-built as a LUT to avoid calling pow() per-pixel.
   uchar lut[256];
   for (int i = 0; i < 256; i++) lut[i] = static_cast<uchar>(std::pow(i / 255.0, 1.0 / 2.2) * 255.0 + 0.5);
 

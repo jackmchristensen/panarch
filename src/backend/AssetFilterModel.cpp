@@ -29,6 +29,9 @@ bool AssetFilterModel::filterAcceptsRow(int sourceRow, const QModelIndex& source
   if (!m_nameFilter.isEmpty() && !asset->displayName.contains(m_nameFilter, Qt::CaseInsensitive))
     return false;
 
+  // Kind filter is exact-match — the kind vocabulary is a closed set of known
+  // strings (e.g. "component", "assembly") so case-insensitive substring
+  // matching would produce confusing results.
   if (!m_kindFilter.isEmpty() && asset->kind != m_kindFilter)
     return false;
 

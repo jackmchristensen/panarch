@@ -1,3 +1,32 @@
+// Backend
+//
+// Responsibility:
+//   Central application controller. Owns the asset data models, manages
+//   library state, and exposes the full QML-facing API via Q_PROPERTY and
+//   Q_INVOKABLE.
+//
+// Current scope:
+//   - Coordinate async library scanning and thumbnail generation
+//   - Expose selected-asset state and on-demand detail loading to QML
+//   - Persist library roots and user settings via QSettings
+//   - Launch external tools (usdview, Blender) for the selected asset
+//
+// Future plans:
+//   - Settings dialog backed by the Settings struct
+//   - Cancel/debounce in-flight detail loads when selection changes rapidly
+//
+// Non-goals:
+//   - USD parsing (delegated to AssetIndex)
+//   - Thumbnail rendering (delegated to thumbnail_generator subprocess)
+//   - View layout or styling (handled entirely in QML)
+//
+// Rationale:
+//   Qt's recommended pattern for QML/C++ integration is a "backend" object
+//   set as a context property on the QML engine. All mutable state the UI
+//   needs lives here as Q_PROPERTYs with NOTIFY signals; QML bindings then
+//   update reactively without the backend needing to know anything about the
+//   view hierarchy.
+
 #pragma once
 #include <QObject>
 #include <QString>
@@ -6,8 +35,10 @@
 #include "backend/AssetFilterModel.h"
 #include "backend/AssetIndex.h"
 
+/// Whether file sizes are displayed in powers of 1024 (KiB, MiB) or 1000 (KB, MB).
 enum class SizeBase { BINARY, DECIMAL };
 
+/// User-configurable application settings. Extend here as new preferences are added.
 struct Settings {
 public:
   SizeBase sizeBase = SizeBase::BINARY;
@@ -16,9 +47,14 @@ public:
 class Backend : public QObject {
   Q_OBJECT
 
-  // AssetRecords
+  // ── Asset list & filter ───────────────────────────────────────────────────
+
+  // CONSTANT because the pointers never change — only the data inside does.
   Q_PROPERTY(AssetListModel* assets READ assets CONSTANT)
   Q_PROPERTY(AssetFilterModel* filteredAssets READ filteredAssets CONSTANT)
+
+  // ── Selected asset (cheap AssetRecord fields, ready immediately) ──────────
+ 
   Q_PROPERTY(QString selectedPath READ selectedPath NOTIFY selectedChanged)
   Q_PROPERTY(QString selectedName READ selectedName NOTIFY selectedChanged)
   Q_PROPERTY(QString selectedExt READ selectedExt NOTIFY selectedChanged)
@@ -29,7 +65,10 @@ class Backend : public QObject {
   Q_PROPERTY(QString selectedThumbnail READ selectedThumbnail NOTIFY selectedChanged)
   Q_PROPERTY(QStringList libraryRoots READ libraryRoots NOTIFY libraryRootsChanged)
 
-  // AssetDetails
+  // ── Selected asset details (populated async after selection) ─────────────
+  // QML should gate on loadingDetails and wait for detailsChanged before
+  // reading these properties.
+
   Q_PROPERTY(bool loadingDetails READ loadingDetails NOTIFY loadingDetailsChanged)
   Q_PROPERTY(QString upAxis READ upAxis NOTIFY detailsChanged)
   Q_PROPERTY(double metersPerUnit READ metersPerUnit NOTIFY detailsChanged)
@@ -39,6 +78,9 @@ class Backend : public QObject {
   Q_PROPERTY(QStringList payloads READ payloads NOTIFY detailsChanged)
   Q_PROPERTY(QStringList references READ references NOTIFY detailsChanged)
   Q_PROPERTY(int primCount READ primCount NOTIFY detailsChanged)
+
+  /// Variant sets as a QVariantList for QML Repeater compatibility.
+  /// Each element is a QVariantMap: { "name": string, "variants": [string], "selected": string }.
   Q_PROPERTY(QVariantList variantSets READ variantSets NOTIFY detailsChanged)
 
 public:
@@ -71,6 +113,7 @@ public:
   Q_INVOKABLE void initialize();
   Q_INVOKABLE void addLibraryRoot(const QString& rootDir);
   Q_INVOKABLE void rescan();
+  /// @p proxyRow is a row in the filtered model, not the source model.
   Q_INVOKABLE void selectIndex(int proxyRow);
   Q_INVOKABLE void selectFirst();
   Q_INVOKABLE void removeLibraryRoot(const QString& path);
@@ -80,6 +123,7 @@ public:
   Q_INVOKABLE void revealSelected();
   Q_INVOKABLE void quitApp();
 
+  // TODO: These should probably be private — nothing in QML needs to call them.
   void saveLibraryRoots(const QStringList& roots);
   QStringList loadLibraryRoots();
   void saveUserSettings();
@@ -99,6 +143,7 @@ private:
   AssetFilterModel m_filterModel;
   AssetDetails m_details;
   bool m_loadingDetails = false;
+
   QString m_selectedPath;
   QString m_selectedName;
   QString m_selectedExt;
@@ -107,6 +152,10 @@ private:
   QString m_selectedDefaultPrim;
   QString m_selectedKind;
   QString m_selectedThumbnail;
+ 
+  // NOTE: Never populated — loadLibraryRoots() reads QSettings directly each
+  // time, so this property always returns an empty list. Fix by syncing
+  // m_libraryRoots in addLibraryRoot(), removeLibraryRoot(), and initialize().
   QStringList m_libraryRoots;
 
   Settings m_settings;

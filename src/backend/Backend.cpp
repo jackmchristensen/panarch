@@ -24,6 +24,9 @@ void Backend::initialize() {
 }
 
 void Backend::generateThumbnailAsync(const QString& assetPath, const QString& cachePath, const QString& assetId) {
+  // Thumbnail rendering runs as a separate process rather than on a thread
+  // because it needs its own OpenGL context and opens a UsdStage. Isolating it
+  // also means a renderer crash can't take down the main application.
   QProcess* process = new QProcess(this);
   QString generatorPath = QCoreApplication::applicationDirPath() + "/thumbnail_generator";
   process->start(generatorPath,
@@ -83,6 +86,8 @@ void Backend::addLibraryRoot(const QString& rootDir) {
 }
 
 void Backend::selectIndex(int proxyRow) {
+  // Map from the filtered proxy row back to the source model before
+  // accessing AssetRecord data.
   QModelIndex sourceIndex = m_filterModel.mapToSource(m_filterModel.index(proxyRow, 0));
   const AssetRecord* rec = m_assets.at(sourceIndex.row());
   if (!rec) return;
@@ -96,10 +101,15 @@ void Backend::selectIndex(int proxyRow) {
   m_selectedKind = rec->kind;
   m_selectedMTime = rec->mtime;
 
+  // Emit immediately with the cheap AssetRecord data so the UI can update
+  // name, path, size etc. while the heavier stage load runs in the background.
   m_loadingDetails = true;
   emit loadingDetailsChanged();
   emit selectedChanged();
 
+  // TODO: The lambda captures [this] and reads m_selectedPath on the background
+  // thread. Rapid selection changes can cause it to load details for the wrong
+  // asset. Fix by capturing the path by value instead.
   auto* watcher = new QFutureWatcher<AssetDetails>(this);
 
   connect(watcher, &QFutureWatcher<AssetDetails>::finished, this, [this, watcher]() {
@@ -163,6 +173,9 @@ void Backend::openSelectedUsdview() {
 }
 
 void Backend::openSelectedBlender() {
+  // Blender has no simple "open USD" command, so we use --python-expr to clear
+  // the default scene and run the USD importer. Requires Blender on PATH and
+  // a build that includes USD import support.
   QStringList args;
   args << "--python-expr";
   args << QString("import bpy; bpy.ops.object.select_all(action='SELECT'); bpy.ops.object.delete(use_global=False, confirm=False); bpy.ops.wm.usd_import(filepath='%1')").arg(m_selectedPath);
@@ -170,6 +183,8 @@ void Backend::openSelectedBlender() {
 }
 
 void Backend::revealSelected() {
+  // Open the containing directory rather than the file — file managers don't
+  // have a useful default action for .usd files.
   QFileInfo fileInfo(m_selectedPath);
   QString url = "file:///" + fileInfo.dir().absolutePath();
   QDesktopServices::openUrl(QUrl(url));
@@ -200,6 +215,8 @@ QString Backend::m_formatSize(quint64 size, SizeBase base) const {
 }
 
 QVariantList Backend::variantSets() const {
+  // QJsonObject can't be iterated directly in QML, so we convert to a list of
+  // maps and inject the set name as a "name" key on each entry.
   QVariantList result;
   const QVariantMap map = m_details.variantSets.toVariantMap();
   for (auto it = map.begin(); it != map.end(); it++) {

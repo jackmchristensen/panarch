@@ -1,3 +1,14 @@
+// AssetFilterModel
+//
+// Responsibility:
+//   QSortFilterProxyModel subclass that sits between AssetListModel and the
+//   QML GridView, providing name/kind filtering and sort order control.
+//
+// Rationale:
+//   Keeping filter and sort logic here (rather than in Backend or QML) means
+//   AssetListModel holds unmodified scan data, and the UI always has a stable
+//   source model to map indices back to.
+
 #pragma once
 #include <QSortFilterProxyModel>
 
