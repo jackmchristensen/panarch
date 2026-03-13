@@ -10,6 +10,7 @@
 #include <QModelIndex>
 #include <QStandardPaths>
 
+#include "utils/OsUtils.h"
 #include "backend/Backend.h"
 
 Backend::Backend(QObject* parent) : QObject(parent) {
@@ -27,7 +28,7 @@ void Backend::generateThumbnailAsync(const QString& assetPath, const QString& ca
   // because it needs its own OpenGL context and opens a UsdStage. Isolating it
   // also means a renderer crash can't take down the main application.
   QProcess* process = new QProcess(this);
-  QString generatorPath = QCoreApplication::applicationDirPath() + "/thumbnail_generator";
+  QString generatorPath = QCoreApplication::applicationDirPath() + OsUtils::executableName("/thumbnail_generator");
   process->start(generatorPath,
                  QStringList() << assetPath << cachePath);
 
@@ -68,7 +69,7 @@ void Backend::rescan() {
 
   for (const QString& root : roots) {
     QProcess* process = new QProcess(this);
-    QString scanPath = QCoreApplication::applicationDirPath() + "/scan_assets";
+    QString scanPath = QCoreApplication::applicationDirPath() + OsUtils::executableName("/scan_assets");
     process->start(scanPath, QStringList() << root);
 
     connect(process, &QProcess::finished, this, [this, process, pending, allAssets](int exitCode) {
@@ -137,7 +138,7 @@ void Backend::loadDetailsAsync(const QString& assetPath) {
   // thread. Rapid selection changes can cause it to load details for the wrong
   // asset. Fix by capturing the path by value instead.
   QProcess* process = new QProcess(this);
-  QString inspectorPath = QCoreApplication::applicationDirPath() + "/usd_inspector";
+  QString inspectorPath = QCoreApplication::applicationDirPath() + OsUtils::executableName("/usd_inspector");
 
   connect(process, &QProcess::finished, this, [this, process](int exitCode) {
     if (exitCode == 0) {
