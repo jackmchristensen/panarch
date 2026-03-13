@@ -2,6 +2,7 @@
 
 #include <QJsonObject>
 #include <QJsonArray>
+#include <pxr/usd/pcp/types.h>
 
 static QJsonArray toJsonArray(const QSet<QString>& set) {
   QJsonArray arr;
@@ -44,10 +45,44 @@ QJsonObject UsdInspector::collectCompositionArcs(pxr::UsdStageRefPtr stage) {
     }
   }
 
+  // Only collect arcs from the root layer stack,
+  // ignoring arcs that came from referenced files
+  pxr::SdfLayerHandle rootLayer = stage->GetRootLayer();
+
+  auto isOwnedByRootAsset = [&](const pxr::PcpNodeRef& node) -> bool {
+    auto parent = node.GetParentNode();
+    if (!parent) return false;
+
+    auto parentRootLayer = parent.GetLayerStack()->GetIdentifier().rootLayer;
+
+    if (parentRootLayer == rootLayer) return true;
+
+    if (parent.GetArcType() == pxr::PcpArcTypePayload) {
+      auto grandparent = parent.GetParentNode();
+      if (!grandparent) return false;
+
+      auto grandparentRootLayer = grandparent.GetLayerStack()->GetIdentifier().rootLayer;
+      return grandparentRootLayer == rootLayer;
+    }
+
+    return false;
+  };
+
   for (const auto& prim : stage->Traverse()) {
     auto primIndex = prim.GetPrimIndex();
     for (const auto& node : primIndex.GetNodeRange()) {
       auto arc = node.GetArcType();
+      if (arc != pxr::PcpArcTypeReference && arc != pxr::PcpArcTypePayload)
+        continue;
+
+      if (!isOwnedByRootAsset(node)) continue;
+
+      // auto parentNode = node.GetParentNode();
+      // if (!parentNode) continue;
+      //
+      // auto parentRootLayer = parentNode.GetLayerStack()->GetIdentifier().rootLayer;
+      // if (parentRootLayer != rootLayer) continue;
+
       std::string path = node.GetLayerStack()->GetIdentifier().rootLayer->GetIdentifier();
 
       if (arc == pxr::PcpArcTypeReference)
