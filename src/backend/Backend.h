@@ -41,7 +41,7 @@
 #include <qtmetamacros.h>
 #include "backend/AssetListModel.h"
 #include "backend/AssetFilterModel.h"
-#include "backend/AssetIndex.h"
+#include "shared/AssetTypes.h"
 
 /// Whether file sizes are displayed in powers of 1024 (KiB, MiB) or 1000 (KB, MB).
 enum class SizeBase { BINARY, DECIMAL };
@@ -177,14 +177,15 @@ private:
   QVector<DccLaunchConfig>  m_detectedDccs = detectDccs();
   QString                   m_formatSize(quint64 size, SizeBase base) const;
 
-  void        saveLibraryRoots(const QStringList& roots);
-  QStringList loadLibraryRoots();
-  void        saveUserSettings();
-  void        loadUserSettings();
-  void        openInDcc(const DccLaunchConfig& dcc);
-  void        generateThumbnailAsync(const QString& assetPath, const QString& cachePath, const QString& assetId);
-  void        loadDetailsAsync(const QString& assetPath);
-  AssetDetails  parseInspectorOutput(const QJsonObject& assetData);
-  static QStringList jsonArrayToStringList(const QJsonArray& arr);
+  void                  saveLibraryRoots      (const QStringList& roots);
+  QStringList           loadLibraryRoots      ();
+  void                  saveUserSettings      ();
+  void                  loadUserSettings      ();
+  void                  openInDcc             (const DccLaunchConfig& dcc);
+  void                  generateThumbnailAsync(const QString& assetPath, const QString& cachePath, const QString& assetId);
+  void                  loadDetailsAsync      (const QString& assetPath);
+  AssetDetails          parseInspectorOutput  (const QJsonObject& assetData);
+  static AssetRecord    recordFromJson        (const QJsonObject& obj);
+  static QStringList    jsonArrayToStringList (const QJsonArray& arr);
 };
 

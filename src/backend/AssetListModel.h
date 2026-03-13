@@ -25,7 +25,7 @@
 
 #pragma once
 #include <QAbstractListModel>
-#include "backend/AssetIndex.h"
+#include "shared/AssetTypes.h"
 
 class AssetListModel : public QAbstractListModel {
   Q_OBJECT

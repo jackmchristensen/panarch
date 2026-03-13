@@ -1,17 +1,6 @@
-#include "pxr/usd/sdf/primSpec.h"
-#include "pxr/usd/sdf/reference.h"
-#include "pxr/usd/sdf/payload.h"
-#include "pxr/usd/sdf/layer.h"
-#include "pxr/usd/sdf/layerUtils.h"
+#include "processes/ScanAssets.h"
+#include "shared/AssetTypes.h"
 
-#include <backend/AssetIndex.h>
-
-#include <QDirIterator>
-#include <QFileInfo>
-#include <QProcess>
-#include <QJsonDocument>
-#include <QJsonArray>
-#include <QCoreApplication>
 #include <QCryptographicHash>
 #include <QStandardPaths>
 
@@ -186,43 +175,44 @@ ScanResult buildInboundGraph(const QString& rootDir) {
 
 } // namespace
 
-QVector<AssetRecord> AssetIndex::scan(const QString& rootDir){
-  ScanResult result = buildInboundGraph(rootDir);
+QJsonObject scanAssets(const QString &rootDir) {
+  ScanResult result =  buildInboundGraph(rootDir);
 
-  QVector<QString> entryCandidates;
-  QVector<QString> internalLayers;
-  for (const auto& f : result.usdFiles) {
-    if (result.inbound[f] == 0) {
-      entryCandidates.append(f);
-    }
-    if (result.inbound[f] > 0) {
-      internalLayers.append(f);
-    }
-  }
+  QJsonArray assets;
+  for (const QString& file : result.usdFiles) {
+    if (result.inbound.value(file, 0) > 0) continue;
 
-  QVector<AssetRecord> out;
-  for (const auto& path : entryCandidates) {
-    AssetRecord record = result.assetData.value(path);
+    const AssetRecord& rec = result.assetData.value(file);
+    QFileInfo fi(file);
+    QString id = QString(QCryptographicHash::hash(file.toUtf8(), QCryptographicHash::Sha1).toHex());
 
-    QFileInfo fi(path);
-    record.id = QString("%1").arg(QString(QCryptographicHash::hash(path.toUtf8(),QCryptographicHash::Sha1).toHex()));
-    record.entryPath = path;
-    record.fileExt = fi.suffix().toLower();
-    record.fileSize = fi.size();
-    record.mtime = fi.lastModified(QTimeZone::UTC);
-
-    // TODO check for thumbnail path in assetInfo in USD file
+    QString thumbnailPath;
     const QString thumb0 = fi.absoluteFilePath() + ".png";
     const QString thumb1 = fi.absolutePath() + "/" + fi.completeBaseName() + ".png";
-    const QString thumb2 = QStandardPaths::writableLocation(QStandardPaths::CacheLocation) + "/thumbnails/" + record.id + ".thumbnail.jpg";
+    const QString thumb2 = QStandardPaths::writableLocation(QStandardPaths::CacheLocation) + "/thumbnails/" + id + ".thumbnail.jpg";
 
+    if      (QFileInfo::exists(thumb0)) thumbnailPath = thumb0;
+    else if (QFileInfo::exists(thumb1)) thumbnailPath = thumb1;
+    else if (QFileInfo::exists(thumb2)) thumbnailPath = thumb2;
 
-    if (QFileInfo::exists(thumb0)) record.thumbnailPath = thumb0;
-    else if (QFileInfo::exists(thumb1)) record.thumbnailPath = thumb1;
-    else if (QFileInfo::exists(thumb2)) record.thumbnailPath = thumb2;
- 
-    out.append(record);
+    QJsonObject asset;
+    asset["id"]              = id;
+    asset["path"]            = file;
+    asset["displayName"]     = rec.displayName;
+    asset["fileExt"]         = fi.suffix().toLower();
+    asset["fileSize"]        = (qint64)fi.size();
+    asset["mtime"]           = fi.lastModified(QTimeZone::UTC).toString(Qt::ISODate);
+    asset["kind"]            = rec.kind;
+    asset["defaultPrimPath"] = rec.defaultPrimPath;
+    asset["thumbnailPath"]   = thumbnailPath;
+    asset["hasVariants"]     = rec.hasVariants;
+    asset["hasPayloads"]     = rec.hasPayloads;
+    asset["hasExternalDeps"] = rec.hasExternalDeps;
+
+    assets.append(asset);
   }
 
-  return out;
+  QJsonObject result_obj;
+  result_obj["assets"] = assets;
+  return result_obj;
 }

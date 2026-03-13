@@ -44,9 +44,23 @@ target_link_libraries(usd_inspector PRIVATE
   usd_m
 )
 
+qt_add_executable(scan_assets
+  src/processes/ScanAssetsMain.cpp
+  src/processes/ScanAssets.cpp
+)
+target_include_directories(scan_assets PRIVATE
+  src
+  ${PXR_INCLUDE_DIRS}
+  /usr/include/python3.14
+)
+target_link_libraries(scan_assets PRIVATE
+  Qt6::OpenGL
+  Qt6::Gui
+  usd_m
+)
+
 qt_add_executable(Panarch
   src/main.cpp
-  src/backend/AssetIndex.cpp
   src/backend/AssetListModel.cpp
   src/backend/AssetFilterModel.cpp
   src/backend/Backend.cpp

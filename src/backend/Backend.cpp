@@ -11,7 +11,6 @@
 #include <QStandardPaths>
 
 #include "backend/Backend.h"
-#include "backend/AssetIndex.h"
 
 Backend::Backend(QObject* parent) : QObject(parent) {
   m_filterModel.setSourceModel(&m_assets);
@@ -41,38 +40,92 @@ void Backend::generateThumbnailAsync(const QString& assetPath, const QString& ca
   });
 }
 
+AssetRecord Backend::recordFromJson(const QJsonObject& obj) {
+  AssetRecord rec;
+  rec.id              = obj["id"].toString();
+  rec.entryPath       = obj["path"].toString();
+  rec.displayName     = obj["displayName"].toString();
+  rec.fileExt         = obj["fileExt"].toString();
+  rec.fileSize        = (quint64)obj["fileSize"].toInteger();
+  rec.mtime           = QDateTime::fromString(obj["mtime"].toString(), Qt::ISODate);
+  rec.kind            = obj["kind"].toString();
+  rec.defaultPrimPath = obj["defaultPrimPath"].toString();
+  rec.thumbnailPath   = obj["thumbnailPath"].toString();
+  rec.hasVariants     = obj["hasVariants"].toBool();
+  rec.hasPayloads     = obj["hasPayloads"].toBool();
+  rec.hasExternalDeps = obj["hasExternalDeps"].toBool();
+  return rec;
+}
+
 void Backend::rescan() {
   QDir().mkpath(QStandardPaths::writableLocation(QStandardPaths::CacheLocation) + "/thumbnails");
 
-  auto* watcher = new QFutureWatcher<QVector<AssetRecord>>(this);
- 
-  connect(watcher, &QFutureWatcher<QVector<AssetRecord>>::finished, this, [this, watcher]() {
-    QVector<AssetRecord> result = watcher->result();
-    m_assets.setAssets(result);
+  const QStringList roots = loadLibraryRoots();
 
-    for (const AssetRecord& rec : result) {
-      QString cachePath = QStandardPaths::writableLocation(QStandardPaths::CacheLocation) + "/thumbnails/" + rec.id + ".thumbnail.jpg";
-      if (!QFile::exists(cachePath) && rec.thumbnailPath == "") {
-        generateThumbnailAsync(rec.entryPath, cachePath, rec.id);
+  // Track how many processes are still running
+  auto* pending = new QAtomicInt(roots.size());
+  auto* allAssets = new QVector<AssetRecord>();
+
+  for (const QString& root : roots) {
+    QProcess* process = new QProcess(this);
+    QString scanPath = QCoreApplication::applicationDirPath() + "/scan_assets";
+    process->start(scanPath, QStringList() << root);
+
+    connect(process, &QProcess::finished, this, [this, process, pending, allAssets](int exitCode) {
+      if (exitCode == 0) {
+        QByteArray output = process->readAllStandardOutput();
+        QJsonDocument doc = QJsonDocument::fromJson(output);
+
+        for (const auto& val : doc.object()["assets"].toArray())
+          allAssets->append(recordFromJson(val.toObject()));
+      };
+
+      process->deleteLater();
+
+      // Update model once all processes finish
+      if (pending->deref() == 0) {
+        m_assets.setAssets(*allAssets);
+        for (const AssetRecord& rec : *allAssets) {
+          QString cachePath = QStandardPaths::writableLocation(QStandardPaths::CacheLocation)
+            + "/thumbnails/" + rec.id + ".thumbnail.jpg";
+          if (!QFile::exists(cachePath) && rec.thumbnailPath.isEmpty())
+            generateThumbnailAsync(rec.entryPath, cachePath, rec.id);
+        }
+        delete pending;
+        delete allAssets;
       }
-    }
+    });
+  }
 
-    watcher->deleteLater();
-  });
-
-  auto future = QtConcurrent::run([this]() {
-    const QStringList roots = loadLibraryRoots();
-    QVector<AssetRecord> all;
-    all.reserve(1024);
-
-    for (const QString& root: roots) {
-      auto scanned = AssetIndex::scan(root);
-      all += scanned;
-    }
-    return all;
-  });
-
-  watcher->setFuture(future);
+  // auto* watcher = new QFutureWatcher<QVector<AssetRecord>>(this);
+  //
+  // connect(watcher, &QFutureWatcher<QVector<AssetRecord>>::finished, this, [this, watcher]() {
+  //   QVector<AssetRecord> result = watcher->result();
+  //   m_assets.setAssets(result);
+  //
+  //   for (const AssetRecord& rec : result) {
+  //     QString cachePath = QStandardPaths::writableLocation(QStandardPaths::CacheLocation) + "/thumbnails/" + rec.id + ".thumbnail.jpg";
+  //     if (!QFile::exists(cachePath) && rec.thumbnailPath == "") {
+  //       generateThumbnailAsync(rec.entryPath, cachePath, rec.id);
+  //     }
+  //   }
+  //
+  //   watcher->deleteLater();
+  // });
+  //
+  // auto future = QtConcurrent::run([this]() {
+  //   const QStringList roots = loadLibraryRoots();
+  //   QVector<AssetRecord> all;
+  //   all.reserve(1024);
+  //
+  //   for (const QString& root: roots) {
+  //     auto scanned = ;
+  //     all += scanned;
+  //   }
+  //   return all;
+  // });
+  //
+  // watcher->setFuture(future);
 }
 
 void Backend::addLibraryRoot(const QString& rootDir) {
