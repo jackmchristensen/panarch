@@ -3,11 +3,6 @@
 #include "pxr/usd/sdf/payload.h"
 #include "pxr/usd/sdf/layer.h"
 #include "pxr/usd/sdf/layerUtils.h"
-#include "pxr/usd/usd/stage.h"
-#include "pxr/usd/usd/prim.h"
-#include "pxr/usd/usdGeom/metrics.h"
-#include "pxr/usd/usd/variantSets.h"
-#include "pxr/usd/usd/primRange.h"
 
 #include <backend/AssetIndex.h>
 
