@@ -85,6 +85,56 @@ void Backend::addLibraryRoot(const QString& rootDir) {
   rescan();
 }
 
+QStringList Backend::jsonArrayToStringList(const QJsonArray& arr) {
+  QStringList result;
+  for (const auto& val : arr)
+    result.append(val.toString());
+  return result;
+}
+
+AssetDetails Backend::parseInspectorOutput(const QJsonObject& assetData) {
+  AssetDetails details;
+
+  details.upAxis              = assetData["upAxis"].toString();
+  details.metersPerUnit       = assetData["metersPerUnit"].toDouble();
+  details.framesPerSecond     = assetData["framesPerSecond"].toDouble();
+  details.timeCodesPerSecond  = assetData["timeCodesPerSecond"].toDouble();
+  details.primCount           = assetData["primCount"].toInt();
+  details.sublayers           = jsonArrayToStringList(assetData["sublayers"].toArray());
+  details.payloads            = jsonArrayToStringList(assetData["payloads"].toArray());
+  details.references          = jsonArrayToStringList(assetData["references"].toArray());
+  details.primTree            = assetData["primTree"].toArray();
+  details.variantSets         = assetData["variantSets"].toObject();
+
+  return details;
+}
+
+void Backend::loadDetailsAsync(const QString& assetPath) {
+  // TODO: The lambda captures [this] and reads m_selectedPath on the background
+  // thread. Rapid selection changes can cause it to load details for the wrong
+  // asset. Fix by capturing the path by value instead.
+  QProcess* process = new QProcess(this);
+  QString inspectorPath = QCoreApplication::applicationDirPath() + "/usd_inspector";
+
+  connect(process, &QProcess::finished, this, [this, process](int exitCode) {
+    if (exitCode == 0) {
+      QByteArray output = process->readAllStandardOutput();
+      QJsonDocument doc = QJsonDocument::fromJson(output);
+
+      if (!doc.isNull()) {
+        AssetDetails details = parseInspectorOutput(doc.object());
+        m_details = details;
+        m_loadingDetails = false;
+        emit loadingDetailsChanged();
+        emit detailsChanged();
+      }
+    }
+    process->deleteLater();
+  });
+
+  process->start(inspectorPath, { assetPath });
+}
+
 void Backend::selectIndex(int proxyRow) {
   // Map from the filtered proxy row back to the source model before
   // accessing AssetRecord data.
@@ -106,26 +156,7 @@ void Backend::selectIndex(int proxyRow) {
   m_loadingDetails = true;
   emit loadingDetailsChanged();
   emit selectedChanged();
-
-  // TODO: The lambda captures [this] and reads m_selectedPath on the background
-  // thread. Rapid selection changes can cause it to load details for the wrong
-  // asset. Fix by capturing the path by value instead.
-  auto* watcher = new QFutureWatcher<AssetDetails>(this);
-
-  connect(watcher, &QFutureWatcher<AssetDetails>::finished, this, [this, watcher]() {
-    AssetDetails result = watcher->result();
-    m_details = result;
-    m_loadingDetails = false;
-    emit loadingDetailsChanged();
-    emit detailsChanged();
-    watcher->deleteLater();
-  });
-
-  auto future = QtConcurrent::run([this]() {
-    return AssetIndex::getAssetDetails(m_selectedPath);
-  });
-
-  watcher->setFuture(future);
+  loadDetailsAsync(m_selectedPath);
 }
 
 void Backend::selectFirst() {

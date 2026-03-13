@@ -183,5 +183,8 @@ private:
   void        loadUserSettings();
   void        openInDcc(const DccLaunchConfig& dcc);
   void        generateThumbnailAsync(const QString& assetPath, const QString& cachePath, const QString& assetId);
+  void        loadDetailsAsync(const QString& assetPath);
+  AssetDetails  parseInspectorOutput(const QJsonObject& assetData);
+  static QStringList jsonArrayToStringList(const QJsonArray& arr);
 };
 

@@ -18,14 +18,27 @@ qt_add_executable(thumbnail_generator
   src/processes/ThumbnailGeneratorMain.cpp
   src/processes/ThumbnailGenerator.cpp
 )
-
 target_include_directories(thumbnail_generator PRIVATE
   src
   ${PXR_INCLUDE_DIRS}
   /usr/include/python3.14
 )
-
 target_link_libraries(thumbnail_generator PRIVATE
+  Qt6::OpenGL
+  Qt6::Gui
+  usd_m
+)
+
+qt_add_executable(usd_inspector
+  src/processes/UsdInspectorMain.cpp
+  src/processes/UsdInspector.cpp
+)
+target_include_directories(usd_inspector PRIVATE
+  src
+  ${PXR_INCLUDE_DIRS}
+  /usr/include/python3.14
+)
+target_link_libraries(usd_inspector PRIVATE
   Qt6::OpenGL
   Qt6::Gui
   usd_m

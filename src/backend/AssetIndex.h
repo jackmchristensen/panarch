@@ -26,6 +26,7 @@
 #include <QVector>
 #include <QDateTime>
 #include <QJsonObject>
+#include <QJsonArray>
 
 struct AssetRecord {
   QString id;
@@ -58,6 +59,7 @@ struct AssetDetails {
   // Prim data
   int primCount = 0;
   QJsonObject variantSets;
+  QJsonArray primTree;
 
   // Asset metadata from USD
   QJsonObject assetInfo;
@@ -67,5 +69,4 @@ struct AssetDetails {
 class AssetIndex {
 public:
   static QVector<AssetRecord> scan(const QString& rootDir);
-  static AssetDetails getAssetDetails(const QString& rootDir);
 };
