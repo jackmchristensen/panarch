@@ -40,7 +40,7 @@ public:
     KindRole,
     HasVariantsRole,
     HasPayloadsRole,
-    HasReferencesRole
+    HasExternalDepsRole
   };
 
   explicit AssetListModel(QObject* parent = nullptr);

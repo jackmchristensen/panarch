@@ -41,7 +41,7 @@ struct AssetRecord {
   QString defaultPrimPath;
   bool hasVariants = false;
   bool hasPayloads = false;
-  bool hasReferences = false;
+  bool hasExternalDeps = false;
 };
 
 struct AssetDetails {

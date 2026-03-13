@@ -136,10 +136,20 @@ AssetRecord collectAssetData(std::string layerPath) {
     .defaultPrimPath = QString::fromStdString(defaultPrimPath.GetString()),
     .hasVariants = checks[0],
     .hasPayloads = checks[1],
-    .hasReferences = checks[2]
   };
 
   return record;
+}
+
+bool hasExternalDeps(const QString& assetPath, const std::set<std::string>& deps) {
+  QFileInfo assetInfo(assetPath);
+  QString assetDir = assetInfo.absolutePath();
+
+  for (const auto& dep : deps) {
+    QString depPath = QString::fromStdString(dep);
+    if (!depPath.startsWith(assetDir)) return true;
+  }
+  return false;
 }
 
 ScanResult buildInboundGraph(const QString& rootDir) {
@@ -167,6 +177,8 @@ ScanResult buildInboundGraph(const QString& rootDir) {
       }
     }
     result.assetData.insert(QString::fromStdString(f), collectAssetData(f));
+
+    result.assetData[file].hasExternalDeps = hasExternalDeps(file, dependencies);
   }
 
   return result;

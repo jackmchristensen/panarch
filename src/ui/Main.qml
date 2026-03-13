@@ -369,8 +369,8 @@ ApplicationWindow {
                   // Reference indicator
                   PIndicator {
                     dotColor: Theme.cyan
-                    isVisible: model.hasReferences
-                    tooltip: "Has references"
+                    isVisible: model.hasExternalDeps
+                    tooltip: "Has ext. dependencies"
                   }
                 }
  
