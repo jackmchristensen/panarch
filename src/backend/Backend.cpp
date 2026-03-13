@@ -172,22 +172,48 @@ void Backend::openSelectedUsdview() {
   QProcess::startDetached("usdview", args);
 }
 
-void Backend::openSelectedBlender() {
-  // Blender has no simple "open USD" command, so we use --python-expr to clear
-  // the default scene and run the USD importer. Requires Blender on PATH and
-  // a build that includes USD import support.
-  QStringList args;
-  args << "--python-expr";
-  args << QString("import bpy; bpy.ops.object.select_all(action='SELECT'); bpy.ops.object.delete(use_global=False, confirm=False); bpy.ops.wm.usd_import(filepath='%1')").arg(m_selectedPath);
-  QProcess::startDetached("blender", args);
-}
-
 void Backend::revealSelected() {
   // Open the containing directory rather than the file — file managers don't
   // have a useful default action for .usd files.
   QFileInfo fileInfo(m_selectedPath);
   QString url = "file:///" + fileInfo.dir().absolutePath();
   QDesktopServices::openUrl(QUrl(url));
+}
+
+void Backend::triggerAction(const QString& actionId) {
+  if      (actionId == "copy")          copySelectedPath();
+  else if (actionId == "reveal")        revealSelected();
+  else if (actionId == "open")          openSelectedUsdview();
+  else {
+    for (const auto& dcc : m_detectedDccs) {
+      if (actionId == "open_" + dcc.id) {
+        openInDcc(dcc);
+        return;
+      }
+    }
+  }
+}
+
+void Backend::openInDcc(const DccLaunchConfig& dcc) {
+  QStringList args;
+
+  if (dcc.enabled) {
+    args << dcc.customArgs;
+  } else {
+    if (dcc.id == "blender") {
+      args << "--python-expr"
+          << QString("import bpy; bpy.ops.object.select_all(action='SELECT'); bpy.ops.object.delete(use_global=False, confirm=False); bpy.ops.wm.usd_import(filepath='%1')")
+              .arg(m_selectedPath);
+    } else if (dcc.id == "houdini") {
+      args << m_selectedPath;
+    } else if (dcc.id == "maya") {
+      args << "-file" << m_selectedPath;
+    } else {
+      args << m_selectedPath;
+    }
+  }
+
+  QProcess::startDetached(dcc.executable, args);
 }
 
 void Backend::quitApp() {
@@ -225,4 +251,57 @@ QVariantList Backend::variantSets() const {
     result.append(entry);
   }
   return result;
+}
+
+QVariantList Backend::actions() const {
+  if (m_selectedPath.isEmpty()) return {};
+
+  QVariantList result = {
+    QVariantMap{
+      {"id",        "copy"},
+      {"label",     "Copy"},
+      {"shortcut",  "Ctrl+C"},
+      {"group",     "left"},
+  },
+    QVariantMap{
+      {"id",        "reveal"},
+      {"label",     "Reveal"},
+      {"shortcut",  ""},
+      {"group",     "left"},
+    },
+    QVariantMap{
+      {"id",        "open"},
+      {"label",     "Open"},
+      {"shortcut",  ""},
+      {"group",     "split_primary"},
+    },
+  };
+
+  for (const auto& dcc : m_detectedDccs) {
+    result.append(QVariantMap{
+      {"id",    "open_" + dcc.id},
+      {"label", "Open in " + dcc.label},
+      {"group", "split_secondary"},
+    });
+  }
+
+  return result;
+}
+
+QVector<DccLaunchConfig> Backend::detectDccs() {
+  // Entries are { id, display label, executable name }
+  const QVector<DccLaunchConfig> candidates = {
+  { "usdview",  "usdview", "usdview" },
+  { "blender",  "Blender", "blender" },
+  { "houdini",  "Houdini", "houdini" },
+  { "maya",     "Maya",    "maya"    },
+  { "katana",   "Katana",  "katana"  }
+  };
+
+  QVector<DccLaunchConfig> found;
+  for (const auto& app : candidates) {
+    if (!QStandardPaths::findExecutable(app.executable).isEmpty())
+      found.append(app);
+  }
+  return found;
 }

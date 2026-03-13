@@ -741,19 +741,21 @@ ApplicationWindow {
             width: parent.width
             spacing: 8
 
-            PButton {
-              text: "Copy"
-              onClicked: backend.copySelectedPath()
-            }
-
-            PButton {
-              text: "Reveal"
-              onClicked: backend.revealSelected()
+            Repeater {
+              model: backend.actions.filter(a => a.group === "left")
+              delegate: PButton {
+                text: modelData.label
+                onClicked: backend.triggerAction(modelData.id)
+              }
             }
 
             Item {
+              visible: backend.actions.some(a => a.group === "split_primary")
               implicitWidth: splitRow.implicitWidth
               implicitHeight: splitRow.implicitHeight
+
+              property var primaryAction: backend.actions.find(a => a.group === "split_primary")
+              property var secondaryAction: backend.actions.find(a => a.group === "split_secondary")
 
               Row {
                 id: splitRow
@@ -761,12 +763,12 @@ ApplicationWindow {
 
                 PButton {
                   id: openButton
-                  text: "Open"
+                  text: parent.parent.primaryAction?.label ?? ""
                   borderWidthBtn: 0
                   radiusTR: 0
                   radiusBR: 0
                   radiusTL: menuBtn.popupVisible ? 0 : Theme.radius
-                  onClicked: backend.openSelectedUsdview()
+                  onClicked: backend.triggerAction(parent.parent.primaryAction?.id ?? "")
                 }
 
                 Rectangle {
@@ -786,12 +788,9 @@ ApplicationWindow {
                   popupRadiusBL: 0
                   bg: Theme.card
                   xPos: -openButton.implicitWidth - Theme.borderWidth - 0.75
-                  items: [
-                    { text: "Open in usdview", action: () => backend.openSelectedUsdview() },
-                    // { text: "Open in Houdini", action: () => console.debug("Houdini") },
-                    // { text: "Open in Maya", action: () => console.debug("Maya") },
-                    { text: "Open in Blender", action: () => backend.openSelectedBlender() },
-                  ]
+                  items: backend.actions
+                    .filter(a => a.group === "split_secondary")
+                    .map(a => ({ text: a.label, action: () => backend.triggerAction(a.id) }))
                 }
               }
 

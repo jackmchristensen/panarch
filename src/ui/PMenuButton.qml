@@ -25,7 +25,7 @@ Item {
   property int popupRadiusTR: radius
   property int popupRadiusBL: radius
   property int popupRadiusBR: radius
-  
+ 
   property int btnWidth: menuBtn.implicitWidth
   property int btnHeight: menuBtn.implicitHeight
 
@@ -49,7 +49,10 @@ Item {
     radiusBL: root.radiusBL
     radiusBR: root.radiusBR
 
-    onClicked: popup.visible ? popup.close() : popup.open()
+    property bool _wasOpen: false
+
+    onPressed: _wasOpen = popup.visible
+    onClicked: _wasOpen ? popup.close() : popup.open()
   }
 
   Popup {
@@ -68,8 +71,20 @@ Item {
     onAboutToShow: {
       var g = menuBtn.mapToGlobal(0, 0)
       _x = g.x + root.xPos
+
+      // Calculate height from item count rather than implicitHeight
+      // since implicitHeight may not be ready on first open
+      var itemHeight = 28
+      var separatorHeight = 9
+      var menuPadding = 8
+
+      var calculatedHeight = menuPadding
+      for (var i = 0; i < root.items.length; i++) {
+        calculatedHeight += root.items[i].separator ? separatorHeight : itemHeight
+      }
+
       var below = g.y + menuBtn.height
-      _y = (below + implicitHeight > Overlay.overlay.height) ? g.y - implicitHeight : below
+      _y = (below + calculatedHeight > Overlay.overlay.height) ? g.y - calculatedHeight : below
     }
 
 
