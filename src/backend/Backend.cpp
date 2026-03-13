@@ -96,36 +96,6 @@ void Backend::rescan() {
       }
     });
   }
-
-  // auto* watcher = new QFutureWatcher<QVector<AssetRecord>>(this);
-  //
-  // connect(watcher, &QFutureWatcher<QVector<AssetRecord>>::finished, this, [this, watcher]() {
-  //   QVector<AssetRecord> result = watcher->result();
-  //   m_assets.setAssets(result);
-  //
-  //   for (const AssetRecord& rec : result) {
-  //     QString cachePath = QStandardPaths::writableLocation(QStandardPaths::CacheLocation) + "/thumbnails/" + rec.id + ".thumbnail.jpg";
-  //     if (!QFile::exists(cachePath) && rec.thumbnailPath == "") {
-  //       generateThumbnailAsync(rec.entryPath, cachePath, rec.id);
-  //     }
-  //   }
-  //
-  //   watcher->deleteLater();
-  // });
-  //
-  // auto future = QtConcurrent::run([this]() {
-  //   const QStringList roots = loadLibraryRoots();
-  //   QVector<AssetRecord> all;
-  //   all.reserve(1024);
-  //
-  //   for (const QString& root: roots) {
-  //     auto scanned = ;
-  //     all += scanned;
-  //   }
-  //   return all;
-  // });
-  //
-  // watcher->setFuture(future);
 }
 
 void Backend::addLibraryRoot(const QString& rootDir) {
