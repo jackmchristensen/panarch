@@ -2,7 +2,6 @@
 
 #include <QJsonObject>
 #include <QJsonArray>
-#include <pxr/usd/pcp/types.h>
 
 static QJsonArray toJsonArray(const QSet<QString>& set) {
   QJsonArray arr;
@@ -76,12 +75,6 @@ QJsonObject UsdInspector::collectCompositionArcs(pxr::UsdStageRefPtr stage) {
         continue;
 
       if (!isOwnedByRootAsset(node)) continue;
-
-      // auto parentNode = node.GetParentNode();
-      // if (!parentNode) continue;
-      //
-      // auto parentRootLayer = parentNode.GetLayerStack()->GetIdentifier().rootLayer;
-      // if (parentRootLayer != rootLayer) continue;
 
       std::string path = node.GetLayerStack()->GetIdentifier().rootLayer->GetIdentifier();
 
