@@ -295,6 +295,11 @@ ApplicationWindow {
                   sourceSize.height: 256
                   fillMode: Image.PreserveAspectFit
 
+                  // NOTE: this is a legacy way to get rounded corners on images.
+                  // There should be a way to use clip or MultiEffect, but I can't get either
+                  // working.
+                  // This works, but uses more memory than those other approaches would, not much, but
+                  // would be nice to use the Qt6 method still.
                   layer.enabled: true
                   layer.effect: OpacityMask {
                     maskSource: Rectangle {
