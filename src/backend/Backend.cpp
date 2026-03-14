@@ -341,31 +341,18 @@ QVariantList Backend::variantSets() const {
   return result;
 }
 
-// TODO: update to use m_actions rather than hardcoding action
-// button data
 QVariantList Backend::actions() const {
   if (m_selectedPath.isEmpty()) return {};
 
-  QVariantList result = {
-    QVariantMap{
-      {"id",        "copy"},
-      {"label",     "Copy"},
-      {"shortcut",  "Ctrl+C"},
-      {"group",     "left"},
-  },
-    QVariantMap{
-      {"id",        "reveal"},
-      {"label",     "Reveal"},
-      {"shortcut",  ""},
-      {"group",     "left"},
-    },
-    QVariantMap{
-      {"id",        "open"},
-      {"label",     "Open"},
-      {"shortcut",  ""},
-      {"group",     "split_primary"},
-    },
-  };
+  QVariantList result;
+  for (const auto& action : m_actions) {
+    result.append(QVariantMap{
+      {"id",        action.id},
+      {"label",     action.label},
+      {"shortcut",  action.shortcut},
+      {"group",     action.group}
+    });
+  }
 
   for (const auto& dcc : m_detectedDccs) {
     result.append(QVariantMap{
