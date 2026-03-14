@@ -40,9 +40,13 @@ void Backend::initActions() {
 }
 
 void Backend::generateThumbnailAsync(const QString& assetPath, const QString& cachePath, const QString& assetId) {
-  // Thumbnail rendering runs as a separate process rather than on a thread
-  // because it needs its own OpenGL context and opens a UsdStage. Isolating it
-  // also means a renderer crash can't take down the main application.
+  if (m_activeThumbnailProcesses >= MaxThumbnailProcesses) {
+    m_thumbnailQueue.enqueue({assetId, {assetPath, cachePath}});
+    return;
+  }
+
+  m_activeThumbnailProcesses++;
+
   QProcess* process = new QProcess(this);
   QString generatorPath = QCoreApplication::applicationDirPath() + OsUtils::executableName("/thumbnail_generator");
   process->start(generatorPath,
@@ -54,7 +58,16 @@ void Backend::generateThumbnailAsync(const QString& assetPath, const QString& ca
     }
 
     process->deleteLater();
+    m_activeThumbnailProcesses--;
+    drainThumbnailQueue();
   });
+}
+
+void Backend::drainThumbnailQueue() {
+  while (m_activeThumbnailProcesses < MaxThumbnailProcesses && !m_thumbnailQueue.isEmpty()) {
+    auto [assetId, paths] = m_thumbnailQueue.dequeue();
+    generateThumbnailAsync(paths.first, paths.second, assetId);
+  }
 }
 
 AssetRecord Backend::recordFromJson(const QJsonObject& obj) {

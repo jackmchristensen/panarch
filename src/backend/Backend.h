@@ -38,6 +38,7 @@
 #pragma once
 #include <QObject>
 #include <QString>
+#include <QQueue>
 #include <qtmetamacros.h>
 #include "backend/AssetListModel.h"
 #include "backend/AssetFilterModel.h"
@@ -185,6 +186,10 @@ private:
   QString   m_selectedDefaultPrim;
   QString   m_selectedKind;
   QString   m_selectedThumbnail;
+
+  int m_activeThumbnailProcesses = 0;
+  static constexpr int MaxThumbnailProcesses = 10;
+  QQueue<std::pair<QString, std::pair<QString, QString>>> m_thumbnailQueue; // {assetId, (assetPath, cachePath)}
  
   // NOTE: Never populated — loadLibraryRoots() reads QSettings directly each
   // time, so this property always returns an empty list. Fix by syncing
@@ -203,6 +208,7 @@ private:
   void                  loadUserSettings      ();
   void                  openInDcc             (const DccLaunchConfig& dcc);
   void                  generateThumbnailAsync(const QString& assetPath, const QString& cachePath, const QString& assetId);
+  void                  drainThumbnailQueue   ();
   void                  loadDetailsAsync      (const QString& assetPath);
   AssetDetails          parseInspectorOutput  (const QJsonObject& assetData);
   static AssetRecord    recordFromJson        (const QJsonObject& obj);
