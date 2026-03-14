@@ -57,8 +57,8 @@ struct DccLaunchConfig {
   QString label;
   QString executable;
   QString customArgs;
-
-  bool enabled;
+  bool enabled = true;
+  QString pluginId = "";
 };
 
 class Backend : public QObject {

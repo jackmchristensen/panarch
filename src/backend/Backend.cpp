@@ -252,7 +252,7 @@ void Backend::triggerAction(const QString& actionId) {
 void Backend::openInDcc(const DccLaunchConfig& dcc) {
   QStringList args;
 
-  if (dcc.enabled) {
+  if (!dcc.enabled) {
     args << dcc.customArgs;
   } else {
     if (dcc.id == "blender") {
