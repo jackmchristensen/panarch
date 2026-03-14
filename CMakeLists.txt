@@ -39,7 +39,6 @@ target_include_directories(usd_inspector PRIVATE
   /usr/include/python3.14
 )
 target_link_libraries(usd_inspector PRIVATE
-  Qt6::OpenGL
   Qt6::Gui
   usd_m
 )
@@ -54,7 +53,6 @@ target_include_directories(scan_assets PRIVATE
   /usr/include/python3.14
 )
 target_link_libraries(scan_assets PRIVATE
-  Qt6::OpenGL
   Qt6::Gui
   usd_m
 )
@@ -87,5 +85,4 @@ target_include_directories(Panarch PRIVATE
 
 target_link_libraries(Panarch PRIVATE
   Qt6::Quick
-  Qt6::Concurrent
 )
