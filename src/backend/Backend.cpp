@@ -60,8 +60,12 @@ AssetRecord Backend::recordFromJson(const QJsonObject& obj) {
 
 void Backend::rescan() {
   QDir().mkpath(QStandardPaths::writableLocation(QStandardPaths::CacheLocation) + "/thumbnails");
-
   const QStringList roots = loadLibraryRoots();
+
+  if (roots.isEmpty()) {
+    m_assets.setAssets({});
+    return;
+  }
 
   // Track how many processes are still running
   auto* pending = new QAtomicInt(roots.size());
