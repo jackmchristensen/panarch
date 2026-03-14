@@ -5,7 +5,6 @@
 #include <QDesktopServices>
 #include <QDir>
 #include <QFileInfo>
-#include <QtConcurrent/QtConcurrent>
 #include <QFutureWatcher>
 #include <QModelIndex>
 #include <QStandardPaths>
@@ -19,8 +18,25 @@ Backend::Backend(QObject* parent) : QObject(parent) {
 }
 
 void Backend::initialize() {
+  initTabs();
+  initActions();
   rescan();
   loadUserSettings();
+}
+
+void Backend::initTabs() {
+  m_tabs = {
+    { "info",   "Info" },
+    { "scene",  "Scene"},
+  };
+}
+
+void Backend::initActions() {
+  m_actions = {
+    {"copy",    "Copy",    "Ctrl+C", "left"           },
+    {"reveal",  "Reveal",  "",       "left"           },
+    {"open",    "Open",    "",       "split_primary"  },
+  };
 }
 
 void Backend::generateThumbnailAsync(const QString& assetPath, const QString& cachePath, const QString& assetId) {
@@ -312,6 +328,8 @@ QVariantList Backend::variantSets() const {
   return result;
 }
 
+// TODO: update to use m_actions rather than hardcoding action
+// button data
 QVariantList Backend::actions() const {
   if (m_selectedPath.isEmpty()) return {};
 
@@ -363,4 +381,11 @@ QVector<DccLaunchConfig> Backend::detectDccs() {
       found.append(app);
   }
   return found;
+}
+
+QVariantList Backend::tabs() const {
+  return {
+    QVariantMap{{"id", "info"},   {"label", "Info"}},
+    QVariantMap{{"id", "scene"},  {"label", "Scene"}},
+  };
 }

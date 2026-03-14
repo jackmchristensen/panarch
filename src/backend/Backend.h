@@ -52,6 +52,21 @@ public:
   SizeBase sizeBase = SizeBase::BINARY;
 };
 
+struct TabDefinition {
+  QString id;
+  QString label;
+  bool closeable = false;
+  QString pluginId = "";
+};
+
+struct ActionDefinition {
+  QString id;
+  QString label;
+  QString shortcut;
+  QString group;
+  QString pluginId = "";
+};
+
 struct DccLaunchConfig {
   QString id;
   QString label;
@@ -100,6 +115,7 @@ class Backend : public QObject {
   /// Each element is a QVariantMap: { "name": string, "variants": [string], "selected": string }.
   Q_PROPERTY(QVariantList variantSets READ variantSets  NOTIFY detailsChanged)
   Q_PROPERTY(QVariantList actions     READ actions      NOTIFY selectedChanged)
+  Q_PROPERTY(QVariantList tabs        READ tabs         NOTIFY tabsChanged)
 
 public:
   explicit Backend(QObject* parent = nullptr);
@@ -129,6 +145,7 @@ public:
 
   QVariantList  variantSets() const;
   QVariantList  actions()     const;
+  QVariantList  tabs()        const;
 
   Q_INVOKABLE void initialize();
   Q_INVOKABLE void addLibraryRoot(const QString& rootDir);
@@ -150,6 +167,7 @@ signals:
   void loadingDetailsChanged();
   void detailsChanged();
   void libraryRootsChanged();
+  void tabsChanged();
   void openLibraryDialogRequested();
   void focusFilter();
 
@@ -175,6 +193,8 @@ private:
 
   Settings                  m_settings;
   QVector<DccLaunchConfig>  m_detectedDccs = detectDccs();
+  QVector<TabDefinition>    m_tabs;
+  QVector<ActionDefinition> m_actions;
   QString                   m_formatSize(quint64 size, SizeBase base) const;
 
   void                  saveLibraryRoots      (const QStringList& roots);
@@ -187,5 +207,8 @@ private:
   AssetDetails          parseInspectorOutput  (const QJsonObject& assetData);
   static AssetRecord    recordFromJson        (const QJsonObject& obj);
   static QStringList    jsonArrayToStringList (const QJsonArray& arr);
+
+  void initTabs();
+  void initActions();
 };
 
