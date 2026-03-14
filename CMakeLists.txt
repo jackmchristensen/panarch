@@ -83,11 +83,9 @@ qt_add_resources(Panarch "ui"
 
 target_include_directories(Panarch PRIVATE
   src
-  ${PXR_INCLUDE_DIRS}
 )
 
 target_link_libraries(Panarch PRIVATE
   Qt6::Quick
   Qt6::Concurrent
-  usd_m
 )
