@@ -157,20 +157,31 @@ ScanResult buildInboundGraph(const QString& rootDir) {
     }
 
     result.outbound.insert(QString::fromStdString(f), localDeps);
-    for (auto d : localDeps) {
-      QString key = QString::fromStdString(d);
-      if (result.inbound.contains(key)) {
-        result.inbound.insert(key, result.inbound.value(key) + 1);
-      } else {
-        result.inbound.insert(key, 1);
-      }
-    }
     result.assetData.insert(QString::fromStdString(f), collectAssetData(f));
-
     result.assetData[file].hasExternalDeps = hasExternalDeps(file, dependencies);
   }
 
-  return result;
+  QSet<QString> visited;
+
+  std::function<void(const QString&)> markDeps = [&](const QString& path) {
+    for (const auto& dep : result.outbound.value(path)) {
+      QString depQ = QString::fromStdString(dep);
+      if (visited.contains(depQ)) continue;
+      visited.insert(depQ);
+      result.inbound[depQ] = result.inbound.value(depQ, 0) + 1;
+      markDeps(depQ);
+    }
+  };
+
+  for (const QString& file : usdFiles) {
+    const AssetRecord& rec = result.assetData.value(file);
+    if( rec.kind == "component" || rec.kind == "subcomponent") {
+      visited.clear();
+      markDeps(file);
+    }
+  }
+
+ return result;
 }
 
 } // namespace
@@ -183,6 +194,13 @@ QJsonObject scanAssets(const QString &rootDir) {
     if (result.inbound.value(file, 0) > 0) continue;
 
     const AssetRecord& rec = result.assetData.value(file);
+
+    const QString& k = rec.kind;
+    bool isKnownKind = (k == "assembly" || k == "group" || k == "component");
+    bool isStandalone = k.isEmpty() && result.outbound.value(file).empty();
+
+    if (!isKnownKind && !isStandalone) continue;
+
     QFileInfo fi(file);
     QString id = QString(QCryptographicHash::hash(file.toUtf8(), QCryptographicHash::Sha1).toHex());
 
