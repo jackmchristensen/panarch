@@ -79,6 +79,17 @@ qt_add_resources(Panarch "ui"
     src/ui/Main.qml
 )
 
+file(GLOB HDRI_FILES "${CMAKE_SOURCE_DIR}/src/resources/hdri/*.exr")
+
+add_custom_command(TARGET thumbnail_generator POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E make_directory
+          "$<TARGET_FILE_DIR:thumbnail_generator>/resources/hdri"
+  COMMAND ${CMAKE_COMMAND} -E copy_if_different
+          ${HDRI_FILES}
+          "$<TARGET_FILE_DIR:thumbnail_generator>/resources/hdri"
+  COMMENT "Copying HDRI resources"
+)
+
 target_include_directories(Panarch PRIVATE
   src
 )

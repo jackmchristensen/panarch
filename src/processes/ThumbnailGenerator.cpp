@@ -1,28 +1,33 @@
+#include <pxr/base/gf/camera.h>
 #include <pxr/base/gf/vec3d.h>
 #include <pxr/imaging/glf/simpleLight.h>
 #include <pxr/imaging/glf/simpleMaterial.h>
-#include <pxr/usd/usd/timeCode.h>
-#include <pxr/usdImaging/usdImagingGL/engine.h>
-#include <pxr/usd/usd/stage.h>
+#include <pxr/imaging/hdx/tokens.h>
+#include <pxr/usd/sdf/assetPath.h>
 #include <pxr/usd/usd/prim.h>
 #include <pxr/usd/usd/primRange.h>
-#include <pxr/base/gf/camera.h>
-#include <pxr/usdImaging/usdImagingGL/renderParams.h>
-#include <pxr/usd/usdGeom/bboxCache.h>
+#include <pxr/usd/usd/stage.h>
+#include <pxr/usd/usd/timeCode.h>
 #include <pxr/usd/usdGeom/imageable.h>
 #include <pxr/usd/usdGeom/mesh.h>
 #include <pxr/usd/usdGeom/metrics.h>
+#include <pxr/usd/usdLux/domeLight.h>
+#include <pxr/usd/usdLux/tokens.h>
 #include <pxr/usdImaging/usdImagingGL/engine.h>
-#include <pxr/imaging/hdx/tokens.h>
+#include <pxr/usdImaging/usdImagingGL/renderParams.h>
 
+#include <QCoreApplication>
+#include <QDir>
+#include <QFile>
 #include <QOpenGLFramebufferObject>
 #include <QOpenGLFramebufferObjectFormat>
 #include <QOffscreenSurface>
 #include <QOpenGLContext>
 #include <QOpenGLFunctions>
 #include <QImage>
-
+#include <qlogging.h>
 #include <qoffscreensurface.h>
+
 #include <tuple>
 #include <limits>
 
@@ -100,6 +105,25 @@ void ThumbnailGenerator::GenerateThumbnail(const QString& assetPath, const QStri
 
   QOpenGLFramebufferObject fbo(512, 512, fboFormat);
 
+  pxr::UsdLuxDomeLight domeLight = pxr::UsdLuxDomeLight::Define(
+    stage, pxr::SdfPath("/ThumbnailDomeLight")
+  );
+
+  // NOTE: the HDRI studio_small_03_1k was uploaded to Poly Haven by Greg Zaal with a CC0 license.
+  // https://polyhaven.com/a/studio_small_03
+  // https://gregzaal.com
+  QString hdriPath;
+  QFile hdriResource(QCoreApplication::applicationDirPath() + "/resources/hdri/studio_small_03_1k.exr");
+  if (hdriResource.exists()) {
+    hdriPath = QDir::temp().filePath("panarch_studio.exr");
+    if(!QFile::exists(hdriPath))
+      hdriResource.copy(hdriPath);
+  }
+
+  domeLight.CreateTextureFileAttr().Set(pxr::SdfAssetPath(hdriPath.toStdString()));
+  domeLight.CreateIntensityAttr().Set(0.5f);
+  domeLight.CreateTextureFormatAttr().Set(pxr::UsdLuxTokens->latlong);
+
   pxr::UsdImagingGLRenderParams params;
   params.frame = pxr::UsdTimeCode::Default();
   params.complexity = 1.0f;
@@ -148,25 +172,6 @@ void ThumbnailGenerator::GenerateThumbnail(const QString& assetPath, const QStri
 
   pxr::UsdImagingGLEngine engine;
   engine.SetCameraState(viewMatrix, frustum.ComputeProjectionMatrix());
-
-  // Key + fill two-light rig. The key is intentionally overbright (1.5)
-  // to compensate for the dark ambient and produce readable thumbnails.
-  pxr::GlfSimpleLightVector lights;
-
-  pxr::GlfSimpleLight keyLight;
-  keyLight.SetPosition(pxr::GfVec4f(7.0f, 15.0f, 7.0f, 1.0f));
-  keyLight.SetDiffuse(pxr::GfVec4f(1.5f));
-  lights.push_back(keyLight);
-
-  pxr::GlfSimpleLight fillLight;
-  fillLight.SetPosition(pxr::GfVec4f(-5.0f, 5.0f, -2.0f, 1.0f));
-  fillLight.SetDiffuse(pxr::GfVec4f(0.4f, 0.4f, 0.4f, 1.0f));
-  lights.push_back(fillLight);
-
-  pxr::GlfSimpleMaterial material;
-  material.SetAmbient(pxr::GfVec4f(0.1f, 0.1f, 0.1f, 1.0f));
-
-  engine.SetLightingState(lights, material, pxr::GfVec4f(0.1f));
 
   fbo.bind();
 
